@@ -1,36 +1,84 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
+import { AlertTriangle, Plus, Search } from "lucide-react";
+
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-background text-foreground">
-      <div className="w-full max-w-4xl p-6 bg-card border border-border rounded-xl shadow-lg space-y-6">
-        <div className="flex items-center justify-between border-b border-border pb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-primary font-sans">Personal Finance Manager</h1>
-            <p className="text-sm text-muted-foreground font-body">Deep Ledger Design System Baseline</p>
-          </div>
-          <span className="px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary border border-primary/20">
-            v1.0 MVP
-          </span>
-        </div>
+      <div className="w-full max-w-4xl space-y-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-primary text-2xl">Personal Finance Manager</CardTitle>
+              <CardDescription>shadcn/ui & Radix UI Component Primitives Verification</CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="default">v1.0 MVP</Badge>
+              <Button size="sm">
+                <Plus className="mr-2 h-4 w-4" /> Add Transaction
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search merchant, payee, or notes..." className="pl-9" />
+              </div>
+              <Button variant="outline">Filter</Button>
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 bg-background border border-border rounded-lg space-y-1">
-            <span className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">Net Balance</span>
-            <div className="text-2xl font-bold font-mono text-income tabular-nums">+$4,250.50</div>
-          </div>
-          <div className="p-4 bg-background border border-border rounded-lg space-y-1">
-            <span className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">Monthly Income</span>
-            <div className="text-2xl font-bold font-mono text-income tabular-nums">+$5,400.00</div>
-          </div>
-          <div className="p-4 bg-background border border-border rounded-lg space-y-1">
-            <span className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">Monthly Expense</span>
-            <div className="text-2xl font-bold font-mono text-expense tabular-nums">-$1,149.50</div>
-          </div>
-        </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs font-semibold">
+                <span className="text-warning flex items-center gap-1">
+                  <AlertTriangle className="h-4 w-4" /> Dining Out Budget (85% Used)
+                </span>
+                <span className="text-muted-foreground font-mono">$425.00 / $500.00</span>
+              </div>
+              <Progress value={85} indicatorClassName="bg-warning" />
+            </div>
 
-        <div className="p-3 bg-warning/10 border border-warning/30 rounded-md text-warning text-xs font-semibold flex items-center justify-between">
-          <span>Dining Out: $425.00 / $500.00 (85% Approaching Limit)</span>
-          <span className="px-2 py-0.5 rounded bg-warning/20">Amber Warning</span>
-        </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Merchant</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell className="font-mono text-xs">Aug 07, 2026</TableCell>
+                  <TableCell>
+                    <Badge variant="expense">Expense</Badge>
+                  </TableCell>
+                  <TableCell>Groceries</TableCell>
+                  <TableCell>Whole Foods Market</TableCell>
+                  <TableCell className="text-right font-mono font-bold text-expense tabular-nums">
+                    -$145.20
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-mono text-xs">Aug 05, 2026</TableCell>
+                  <TableCell>
+                    <Badge variant="income">Income</Badge>
+                  </TableCell>
+                  <TableCell>Salary</TableCell>
+                  <TableCell>TechCorp Payroll</TableCell>
+                  <TableCell className="text-right font-mono font-bold text-income tabular-nums">
+                    +$2,700.00
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
     </main>
   );
