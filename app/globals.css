@@ -1,14 +1,97 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  --background: #0f1418;
-  --foreground: #dee3e8;
+@layer base {
+  :root {
+    --background: #0f1418;
+    --foreground: #dee3e8;
+
+    --card: #1b2024;
+    --card-foreground: #dee3e8;
+
+    --popover: #1b2024;
+    --popover-foreground: #dee3e8;
+
+    --primary: #38bdf8;
+    --primary-foreground: #001e2c;
+
+    --secondary: #1e293b;
+    --secondary-foreground: #aeb9d0;
+
+    --muted: #252b2e;
+    --muted-foreground: #94a3b8;
+
+    --accent: #303539;
+    --accent-foreground: #dee3e8;
+
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+
+    --border: #303539;
+    --input: #1e293b;
+    --ring: #38bdf8;
+
+    --income: #10b981;
+    --income-foreground: #003822;
+
+    --expense: #f43f5e;
+    --expense-foreground: #4c0013;
+
+    --warning: #f59e0b;
+    --warning-foreground: #381e00;
+
+    --radius-sm: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 1rem;
+  }
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-income: var(--income);
+  --color-income-foreground: var(--income-foreground);
+  --color-expense: var(--expense);
+  --color-expense-foreground: var(--expense-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --font-sans: "Geist", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
 }
 
 body {
+  background-color: var(--background);
   color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
