@@ -8,7 +8,7 @@ import pg from "pg";
 /**
  * Singleton instance of PrismaClient for Next.js App Router & Prisma v7.
  * Utilizes pg pool adapter for connection pooling to Neon PostgreSQL.
- * Prefers pooled connection string (DATABASE_URL) with SSL configuration.
+ * Configured with 15s connectionTimeoutMillis to accommodate Neon compute cold-start wake-ups.
  */
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -28,8 +28,8 @@ const createPrismaClient = () => {
     connectionString,
     ssl: { rejectUnauthorized: false },
     max: 10,
-    idleTimeoutMillis: 20000,
-    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 15000,
   });
 
   const adapter = new PrismaPg(pool);
