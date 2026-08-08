@@ -1,0 +1,10 @@
+// Authoritative Prisma Schema for Personal Finance Manager
+// Target: PostgreSQL (Neon connection pooling)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
