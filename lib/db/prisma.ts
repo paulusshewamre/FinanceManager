@@ -12,21 +12,15 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 const createPrismaClient = () => {
-  const connectionString = process.env.DATABASE_URL;
-  
-  if (connectionString && !connectionString.includes("password@ep-sample")) {
-    const pool = new pg.Pool({ connectionString });
-    const adapter = new PrismaPg(pool);
-    return new PrismaClient({
-      adapter,
-      log:
-        process.env.NODE_ENV === "development"
-          ? ["query", "error", "warn"]
-          : ["error"],
-    });
-  }
+  const connectionString =
+    process.env.DATABASE_URL ||
+    "postgresql://postgres:postgres@localhost:5432/financemanager";
+
+  const pool = new pg.Pool({ connectionString });
+  const adapter = new PrismaPg(pool);
 
   return new PrismaClient({
+    adapter,
     log:
       process.env.NODE_ENV === "development"
         ? ["query", "error", "warn"]
