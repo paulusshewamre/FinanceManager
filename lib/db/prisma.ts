@@ -8,7 +8,7 @@ import pg from "pg";
 /**
  * Singleton instance of PrismaClient for Next.js App Router & Prisma v7.
  * Utilizes pg pool adapter for connection pooling to Neon PostgreSQL.
- * Prefers unpooled connection string (DIRECT_URL) with SSL configuration.
+ * Prefers pooled connection string (DATABASE_URL) with SSL configuration.
  */
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -16,9 +16,9 @@ const globalForPrisma = globalThis as unknown as {
 
 const createPrismaClient = () => {
   const connectionString =
+    process.env.DATABASE_URL ||
     process.env.DIRECT_URL ||
-    process.env.DATABASE_URL_UNPOOLED ||
-    process.env.DATABASE_URL;
+    process.env.DATABASE_URL_UNPOOLED;
 
   if (!connectionString) {
     throw new Error("DATABASE_URL environment variable is missing.");
@@ -27,6 +27,9 @@ const createPrismaClient = () => {
   const pool = new pg.Pool({
     connectionString,
     ssl: { rejectUnauthorized: false },
+    max: 10,
+    idleTimeoutMillis: 20000,
+    connectionTimeoutMillis: 10000,
   });
 
   const adapter = new PrismaPg(pool);
