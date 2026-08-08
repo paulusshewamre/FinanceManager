@@ -1,5 +1,5 @@
 // Authoritative Prisma Schema for Personal Finance Manager
-// Target: PostgreSQL (Neon connection pooling)
+// Target: PostgreSQL (Neon connection pooling & Better Auth compatible)
 
 generator client {
   provider = "prisma-client-js"
@@ -22,7 +22,7 @@ model User {
   accounts      Account[]
   profile       Profile?
 
-  @@map("users")
+  @@map("user")
 }
 
 model Session {
@@ -36,7 +36,7 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("sessions")
+  @@map("session")
 }
 
 model Account {
@@ -55,10 +55,10 @@ model Account {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
-  @@map("accounts")
+  @@map("account")
 }
 
-model VerificationToken {
+model Verification {
   id         String   @id @default(cuid())
   identifier String
   value      String
@@ -66,7 +66,7 @@ model VerificationToken {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@map("verification_tokens")
+  @@map("verification")
 }
 
 model Profile {
@@ -80,5 +80,5 @@ model Profile {
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
-  @@map("profiles")
+  @@map("profile")
 }
