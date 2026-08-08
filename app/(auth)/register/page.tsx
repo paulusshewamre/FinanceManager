@@ -64,7 +64,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f1418] text-[#dee3e8] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#0f1418] text-[#dee3e8] p-4" suppressHydrationWarning>
       <Card className="w-full max-w-md bg-[#1b2024] border-[#303539] text-[#dee3e8] shadow-2xl">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-2">
