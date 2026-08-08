@@ -3,9 +3,8 @@ import { createAuthClient } from "better-auth/react";
 /**
  * Authoritative Better Auth React Client.
  * Provides hooks and authentication methods for client components.
+ * Omit baseURL to automatically use relative paths (/api/auth) on both localhost and Vercel.
  */
-export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-});
+export const authClient = createAuthClient();
 
 export const { useSession, signIn, signUp, signOut } = authClient;
