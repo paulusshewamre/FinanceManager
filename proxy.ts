@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 /**
  * Next.js Edge Middleware enforcing session protection across protected pages and API endpoints.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Exempt static assets and public auth endpoints

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -22,6 +22,11 @@ import {
 export default function RegisterPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const {
     register,
@@ -62,6 +67,15 @@ export default function RegisterPage() {
       }
     }
   };
+
+  if (!mounted) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center bg-[#0f1418] text-[#dee3e8] p-4"
+        suppressHydrationWarning
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0f1418] text-[#dee3e8] p-4" suppressHydrationWarning>
