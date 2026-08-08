@@ -110,30 +110,30 @@ function ResetPasswordForm() {
         </CardDescription>
       </CardHeader>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} suppressHydrationWarning>
         <CardContent className="space-y-4">
           {!token && (
-            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm flex items-start gap-2.5">
+            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
               <span>Missing reset token. Please use the reset link provided in your email.</span>
             </div>
           )}
 
           {serverError && (
-            <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm flex items-start gap-2.5">
+            <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
               <span>{serverError}</span>
             </div>
           )}
 
           {successMessage && (
-            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm flex items-start gap-2.5">
+            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
               <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
               <span>{successMessage}</span>
             </div>
           )}
 
-          <div className="space-y-1.5">
+          <div className="space-y-1.5" suppressHydrationWarning>
             <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
               New Password
             </label>
@@ -150,7 +150,7 @@ function ResetPasswordForm() {
             )}
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-1.5" suppressHydrationWarning>
             <label htmlFor="confirmPassword" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
               Confirm New Password
             </label>

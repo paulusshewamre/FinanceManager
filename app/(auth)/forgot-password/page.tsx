@@ -90,23 +90,23 @@ export default function ForgotPasswordPage() {
           </CardDescription>
         </CardHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} suppressHydrationWarning>
           <CardContent className="space-y-4">
             {serverError && (
-              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm flex items-start gap-2.5">
+              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
                 <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                 <span>{serverError}</span>
               </div>
             )}
 
             {successMessage && (
-              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm flex items-start gap-2.5">
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
                 <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
                 <span>{successMessage}</span>
               </div>
             )}
 
-            <div className="space-y-1.5">
+            <div className="space-y-1.5" suppressHydrationWarning>
               <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
                 Email Address
               </label>
@@ -140,7 +140,7 @@ export default function ForgotPasswordPage() {
               )}
             </Button>
 
-            <div className="text-center text-xs text-[#94a3b8]">
+            <div className="text-center text-xs text-[#94a3b8]" suppressHydrationWarning>
               <Link
                 href="/login"
                 className="inline-flex items-center text-[#38bdf8] hover:underline font-semibold"

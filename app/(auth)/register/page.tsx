@@ -81,8 +81,8 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#0f1418] text-[#dee3e8] p-4" suppressHydrationWarning>
       <Card className="w-full max-w-md bg-[#1b2024] border-[#303539] text-[#dee3e8] shadow-2xl">
         <CardHeader className="space-y-2 text-center">
-          <div className="flex justify-center mb-2">
-            <div className="p-3 bg-[#38bdf8]/10 rounded-xl border border-[#38bdf8]/20 text-[#38bdf8]">
+          <div className="flex justify-center mb-2" suppressHydrationWarning>
+            <div className="p-3 bg-[#38bdf8]/10 rounded-xl border border-[#38bdf8]/20 text-[#38bdf8]" suppressHydrationWarning>
               <ShieldCheck className="w-8 h-8" />
             </div>
           </div>
@@ -94,16 +94,16 @@ export default function RegisterPage() {
           </CardDescription>
         </CardHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} suppressHydrationWarning>
           <CardContent className="space-y-4">
             {serverError && (
-              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm flex items-start gap-2.5">
+              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
                 <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                 <span>{serverError}</span>
               </div>
             )}
 
-            <div className="space-y-1.5">
+            <div className="space-y-1.5" suppressHydrationWarning>
               <label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
                 Full Name
               </label>
@@ -120,7 +120,7 @@ export default function RegisterPage() {
               )}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1.5" suppressHydrationWarning>
               <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
                 Email Address
               </label>
@@ -137,7 +137,7 @@ export default function RegisterPage() {
               )}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1.5" suppressHydrationWarning>
               <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
                 Password
               </label>
@@ -154,7 +154,7 @@ export default function RegisterPage() {
               )}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1.5" suppressHydrationWarning>
               <label htmlFor="confirmPassword" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
                 Confirm Password
               </label>
@@ -188,7 +188,7 @@ export default function RegisterPage() {
               )}
             </Button>
 
-            <div className="text-center text-xs text-[#94a3b8]">
+            <div className="text-center text-xs text-[#94a3b8]" suppressHydrationWarning>
               Already have an account?{" "}
               <Link
                 href="/login"

@@ -92,16 +92,16 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} suppressHydrationWarning>
           <CardContent className="space-y-4">
             {serverError && (
-              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm flex items-start gap-2.5">
+              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
                 <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                 <span>{serverError}</span>
               </div>
             )}
 
-            <div className="space-y-1.5">
+            <div className="space-y-1.5" suppressHydrationWarning>
               <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
                 Email Address
               </label>
@@ -118,8 +118,8 @@ export default function LoginPage() {
               )}
             </div>
 
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
+            <div className="space-y-1.5" suppressHydrationWarning>
+              <div className="flex items-center justify-between" suppressHydrationWarning>
                 <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
                   Password
                 </label>
@@ -143,10 +143,11 @@ export default function LoginPage() {
               )}
             </div>
 
-            <div className="flex items-center space-x-2 pt-1">
+            <div className="flex items-center space-x-2 pt-1" suppressHydrationWarning>
               <input
                 id="rememberMe"
                 type="checkbox"
+                suppressHydrationWarning
                 disabled={isSubmitting}
                 {...register("rememberMe")}
                 className="h-4 w-4 rounded border-[#303539] bg-[#0f1418] text-[#38bdf8] focus:ring-[#38bdf8] accent-[#38bdf8]"
@@ -173,7 +174,7 @@ export default function LoginPage() {
               )}
             </Button>
 
-            <div className="text-center text-xs text-[#94a3b8]">
+            <div className="text-center text-xs text-[#94a3b8]" suppressHydrationWarning>
               Don&apos;t have an account?{" "}
               <Link
                 href="/register"
