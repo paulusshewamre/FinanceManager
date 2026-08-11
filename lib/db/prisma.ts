@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 
@@ -11,7 +10,33 @@ import pg from "pg";
  * Configured with 15s connectionTimeoutMillis to accommodate Neon compute cold-start wake-ups.
  */
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  prisma: any | undefined;
+};
+
+const purgePrismaCache = () => {
+  if (typeof require !== "undefined" && require.cache) {
+    Object.keys(require.cache).forEach((key) => {
+      if (key.includes("@prisma") || key.includes(".prisma")) {
+        delete require.cache[key];
+      }
+    });
+  }
+};
+
+const getFreshPrismaClientClass = () => {
+  if (typeof require !== "undefined") {
+    try {
+      purgePrismaCache();
+      const freshModule = require("@prisma/client");
+      if (freshModule && freshModule.PrismaClient) {
+        return freshModule.PrismaClient;
+      }
+    } catch {
+      // Fallback if require fails
+    }
+  }
+  const { PrismaClient } = require("@prisma/client");
+  return PrismaClient;
 };
 
 const createPrismaClient = () => {
@@ -33,8 +58,9 @@ const createPrismaClient = () => {
   });
 
   const adapter = new PrismaPg(pool);
+  const PrismaClientClass = getFreshPrismaClientClass();
 
-  return new PrismaClient({
+  return new PrismaClientClass({
     adapter,
     log:
       process.env.NODE_ENV === "development"
@@ -43,10 +69,46 @@ const createPrismaClient = () => {
   });
 };
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+const getPrismaInstance = (propName?: string | symbol): any => {
+  if (globalForPrisma.prisma) {
+    // If accessing a model property (e.g. transaction, category) that is undefined on cached instance, force cache purge & client recreation
+    if (
+      typeof propName === "string" &&
+      !propName.startsWith("$") &&
+      typeof (globalForPrisma.prisma as any)[propName] === "undefined"
+    ) {
+      console.warn(
+        `[Prisma Proxy] Model delegate '${propName}' is undefined on global cached instance. Purging Prisma module cache and recreating client...`
+      );
+      globalForPrisma.prisma = undefined;
+    } else {
+      return globalForPrisma.prisma;
+    }
+  }
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+  const client = createPrismaClient();
+
+  if (process.env.NODE_ENV !== "production") {
+    globalForPrisma.prisma = client;
+  }
+
+  return client;
+};
+
+/**
+ * Dynamic Proxy wrapper around PrismaClient.
+ * Guarantees self-healing client re-instantiation and require.cache purging across Next.js HMR & dev server reloads
+ * if model delegates (like transaction or category) are missing from in-memory module/global cache.
+ */
+export const prisma: any = new Proxy({} as any, {
+  get(_target, prop) {
+    const instance = getPrismaInstance(prop);
+    const value = instance[prop];
+    if (typeof value === "function") {
+      return value.bind(instance);
+    }
+    return value;
+  },
+});
 
 export default prisma;

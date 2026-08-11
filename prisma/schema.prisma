@@ -22,6 +22,7 @@ model User {
   accounts      Account[]
   profile       Profile?
   categories    Category[]
+  transactions  Transaction[]
 
   @@map("user")
 }
@@ -32,18 +33,40 @@ enum CategoryType {
 }
 
 model Category {
-  id              String       @id @default(cuid())
+  id              String        @id @default(cuid())
   userId          String?
-  user            User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   name            String
   type            CategoryType
-  isSystemDefault Boolean      @default(false)
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  isSystemDefault Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  transactions    Transaction[]
 
   @@unique([userId, name, type])
   @@index([userId, isSystemDefault, type])
   @@map("category")
+}
+
+model Transaction {
+  id              String       @id @default(cuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId      String
+  category        Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  amount          Decimal      @db.Decimal(12, 2)
+  type            CategoryType
+  transactionDate DateTime
+  merchantName    String?
+  notes           String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([userId, transactionDate(sort: Desc)])
+  @@index([userId, categoryId, transactionDate])
+  @@index([userId, type, amount])
+  @@map("transaction")
 }
 
 model Session {

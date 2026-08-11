@@ -1,29 +1,5 @@
-import { PrismaClient, CategoryType } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import pg from "pg";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const connectionString =
-  process.env.DATABASE_URL ||
-  process.env.DIRECT_URL ||
-  process.env.DATABASE_URL_UNPOOLED;
-
-if (!connectionString) {
-  throw new Error("DATABASE_URL environment variable is missing.");
-}
-
-const pool = new pg.Pool({
-  connectionString,
-  ssl: { rejectUnauthorized: false },
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 15000,
-});
-
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+import { CategoryType } from "@prisma/client";
+import prisma from "@/lib/db/prisma";
 
 export const DEFAULT_CATEGORIES = [
   { name: "Groceries", type: CategoryType.EXPENSE },
@@ -35,10 +11,10 @@ export const DEFAULT_CATEGORIES = [
   { name: "Uncategorized (Income)", type: CategoryType.INCOME },
 ];
 
-export async function seedDefaultCategories() {
+export async function seedDefaultCategories(client = prisma) {
   console.log("Seeding system default categories...");
   for (const category of DEFAULT_CATEGORIES) {
-    const existing = await prisma.category.findFirst({
+    const existing = await client.category.findFirst({
       where: {
         userId: null,
         name: category.name,
@@ -48,7 +24,7 @@ export async function seedDefaultCategories() {
     });
 
     if (!existing) {
-      await prisma.category.create({
+      await client.category.create({
         data: {
           name: category.name,
           type: category.type,
@@ -72,7 +48,6 @@ async function main() {
     process.exit(1);
   } finally {
     await prisma.$disconnect();
-    await pool.end();
   }
 }
 

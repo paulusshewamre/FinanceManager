@@ -8,6 +8,61 @@ import {
 } from "../../lib/validations/auth";
 
 describe("Authentication Zod Schemas", () => {
+  describe("registerSchema", () => {
+    test("validates valid registration input and trims strings", () => {
+      const valid = registerSchema.safeParse({
+        name: "  Jane Doe  ",
+        email: "  jane@example.com  ",
+        password: "securePassword123!",
+        confirmPassword: "securePassword123!",
+      });
+      assert.strictEqual(valid.success, true);
+      if (valid.success) {
+        assert.strictEqual(valid.data.name, "Jane Doe");
+        assert.strictEqual(valid.data.email, "jane@example.com");
+      }
+    });
+
+    test("fails on short name", () => {
+      const invalid = registerSchema.safeParse({
+        name: "A",
+        email: "jane@example.com",
+        password: "securePassword123!",
+        confirmPassword: "securePassword123!",
+      });
+      assert.strictEqual(invalid.success, false);
+    });
+
+    test("fails on invalid email format", () => {
+      const invalid = registerSchema.safeParse({
+        name: "Jane Doe",
+        email: "invalid-email-address",
+        password: "securePassword123!",
+        confirmPassword: "securePassword123!",
+      });
+      assert.strictEqual(invalid.success, false);
+    });
+
+    test("fails on password shorter than 8 characters", () => {
+      const invalid = registerSchema.safeParse({
+        name: "Jane Doe",
+        email: "jane@example.com",
+        password: "short",
+        confirmPassword: "short",
+      });
+      assert.strictEqual(invalid.success, false);
+    });
+
+    test("fails when passwords do not match", () => {
+      const invalid = registerSchema.safeParse({
+        name: "Jane Doe",
+        email: "jane@example.com",
+        password: "securePassword123!",
+        confirmPassword: "differentPassword123!",
+      });
+      assert.strictEqual(invalid.success, false);
+    });
+  });
   describe("loginSchema", () => {
     test("validates valid email and password", () => {
       const valid = loginSchema.safeParse({

@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/db/prisma";
+import { sendPasswordResetEmail } from "@/lib/email";
 
 /**
  * Authoritative Better Auth Server Configuration.
@@ -16,10 +17,30 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          await prisma.profile.create({
+            data: {
+              userId: user.id,
+              displayName: user.name || user.email.split("@")[0],
+              preferredCurrencySymbol: "$",
+              themePreference: "dark",
+            },
+          });
+        },
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }) => {
-      console.log(`[AUTH] Password reset requested for ${user.email}: ${url}`);
+      await sendPasswordResetEmail({
+        to: user.email,
+        url,
+        userName: user.name,
+      });
     },
   },
   session: {

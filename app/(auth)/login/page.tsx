@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,14 +19,25 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [serverError, setServerError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Validate and sanitize target redirect path to prevent open redirect vulnerabilities
+  const rawRedirectTo = searchParams.get("redirectTo");
+  const targetRedirect =
+    rawRedirectTo &&
+    rawRedirectTo.startsWith("/") &&
+    !rawRedirectTo.startsWith("//") &&
+    !rawRedirectTo.startsWith("/\\")
+      ? rawRedirectTo
+      : "/dashboard";
 
   const {
     register,
@@ -51,18 +62,14 @@ export default function LoginPage() {
       });
 
       if (res.error) {
-        setServerError(res.error.message || "Invalid email or password credentials.");
+        setServerError("Invalid email or password credentials.");
         return;
       }
 
-      router.push("/dashboard");
+      router.push(targetRedirect);
       router.refresh();
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setServerError(err.message);
-      } else {
-        setServerError("Invalid email or password credentials.");
-      }
+    } catch {
+      setServerError("Invalid email or password credentials.");
     }
   };
 
@@ -187,5 +194,19 @@ export default function LoginPage() {
         </form>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#0f1418] text-[#dee3e8] p-4">
+          <Loader2 className="w-8 h-8 animate-spin text-[#38bdf8]" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
