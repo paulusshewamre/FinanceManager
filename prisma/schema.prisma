@@ -21,8 +21,29 @@ model User {
   sessions      Session[]
   accounts      Account[]
   profile       Profile?
+  categories    Category[]
 
   @@map("user")
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+model Category {
+  id              String       @id @default(cuid())
+  userId          String?
+  user            User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  type            CategoryType
+  isSystemDefault Boolean      @default(false)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@unique([userId, name, type])
+  @@index([userId, isSystemDefault, type])
+  @@map("category")
 }
 
 model Session {
