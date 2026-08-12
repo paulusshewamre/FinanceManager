@@ -1,16 +1,16 @@
 # Progress & Handoff Summary
 
 **Project:** Personal Finance Manager (v1.0 MVP)  
-**Last Updated:** August 11, 2026  
-**Status:** Milestone 3 (`M3-TXN`) 100% Complete & Verified | Ready for Milestone 4 (`M4-BUDGET`)
+**Last Updated:** August 12, 2026  
+**Status:** Milestone 4 (`M4-BUDGET`) 100% Complete & Verified | Ready for Milestone 5 (`M5-SAVINGS`)
 
 ---
 
 ## 1. Executive Summary & Session State
 
-All foundational infrastructure, authentication workflows, category domain logic, and transaction ledger engine tasks up to **Milestone 3 Task 3 (`TSK-032`)** are **100% completed, verified, and passing all 59 automated test suites**.
+All foundational infrastructure, authentication workflows, category domain logic, transaction ledger engine, and monthly budgets warning threshold engine tasks up to **Milestone 4 Task 3 (`TSK-042`)** are **100% completed, verified, and passing all automated unit, schema, and API integration test suites**.
 
-The runtime environment has been reinforced with a self-healing dynamic Prisma Proxy in [`lib/db/prisma.ts`](file:///home/blart/Documents/webProjects/FinanceManager/lib/db/prisma.ts) that handles dev server HMR and purges Node's module cache if new Prisma schema delegates are introduced.
+The Next.js production build (`npm run build`) compiles cleanly with 0 type errors across all routes (`/budgets`, `/categories`, `/transactions`, `/dashboard`, `/api/*`).
 
 ---
 
@@ -33,47 +33,46 @@ The runtime environment has been reinforced with a self-healing dynamic Prisma P
 - `TSK-021`: Category CRUD API endpoints (`/api/categories`) with duplicate name prevention & system default immutability (`BR-017`).
 - `TSK-022`: `/categories` management dashboard, `AddEditCategoryModal`, and `DeleteCategoryModal` enforcing atomic transaction reassignment to `"Uncategorized (Expense)"` (`BR-013`).
 
-### ✅ Milestone 3: Transactions Ledger & Backdating Engine (`M3-TXN`) — COMPLETED (JUST FINISHED)
+### ✅ Milestone 3: Transactions Ledger & Backdating Engine (`M3-TXN`) — COMPLETED
 - `TSK-030`: Transaction Prisma model defined with `@db.Decimal(12,2)` precision, foreign keys on User & Category, composite B-Tree indexes, and schema pushed to Neon DB (`npx prisma db push`).
 - `TSK-031`: `/api/transactions` and `/api/transactions/[id]` API route handlers (`GET`, `POST`, `PUT`, `DELETE`). Implemented multi-tenant row locks, category type matching validation (`BR-003`), search/type/category/date-range filtering, pagination, and backdating recalculations.
 - `TSK-032`: `/transactions` UI page featuring tabular cashflow ledger with `font-mono` amounts, flow type badges (`+ INCOME` / `- EXPENSE`), filter toolbar, and `AddEditTransactionModal` with `datetime-local` picker supporting historical backdating.
-- **Dynamic Proxy Cache Self-Healing Fix ([`lib/db/prisma.ts`](file:///home/blart/Documents/webProjects/FinanceManager/lib/db/prisma.ts)):** Fixed dev server `TypeError: Cannot read properties of undefined (reading 'count'/'create')` by auto-purging Node's `require.cache` for `@prisma/*` and `.prisma/*` whenever a newly added model delegate is accessed on a cached instance.
+
+### ✅ Milestone 4: Monthly Budgets & Warning Threshold Engine (`M4-BUDGET`) — COMPLETED (JUST FINISHED)
+- `TSK-040`: Budget Prisma model defined with `@db.Decimal(12,2)` precision, unique constraint `@@unique([userId, categoryId, month, year])` (`BR-007`), composite index `@@index([userId, year, month])`, and schema pushed to Neon DB (`npx prisma db push`). Unit test `tests/unit/budget-schema.test.ts` passing.
+- `TSK-041`: `lib/validations/budget.ts`, `lib/calculations/budget.ts` calculation engine, `/api/budgets` and `/api/budgets/[id]` route handlers (`GET`, `POST`, `PUT`, `DELETE`). Enforces expense category constraint (`BR-007`), computes dynamic spent aggregation, and evaluates warning states (`NORMAL` < 80%, `WARNING` 80%+, `EXCEEDED` 100%+). Unit tests (`tests/unit/budget-calculation.test.ts`) and API integration tests (`tests/integration/budget-routes.test.ts`) passing.
+- `TSK-042`: `/budgets` UI page with month/year navigator controls, overall monthly budget health card, category spending progress bars, Amber `AlertTriangle` warning badges, Red `AlertOctagon` overrun badges, `AddEditBudgetModal`, and `DeleteBudgetModal`.
 
 ---
 
 ## 3. What to Work on Next (Starting Point for Next Session)
 
-When resuming work, start directly with **Milestone 4: Monthly Budgets & Warning Threshold Engine (`M4-BUDGET`)**:
+When resuming work, start directly with **Milestone 5: Savings Goals & Atomic Contribution Engine (`M5-SAVINGS`)**:
 
-### Task 1: `TSK-040` — Budget Prisma Schema & DB Push
-- **Objective:** Add `Budget` model to [`prisma/schema.prisma`](file:///home/blart/Documents/webProjects/FinanceManager/prisma/schema.prisma).
-- **Fields:** `id`, `userId` (relation to User), `categoryId` (relation to Category), `amount` (`Decimal(12,2)`), `month` (`Int`), `year` (`Int`), `createdAt`, `updatedAt`.
-- **Constraints:** Enforce 1 budget per category per calendar month per user via `@@unique([userId, categoryId, month, year])` (`BR-007`).
+### Task 1: `TSK-050` — Savings Goal Prisma Schema & DB Push
+- **Objective:** Add `SavingsGoal` model to [`prisma/schema.prisma`](file:///home/blart/Documents/webProjects/FinanceManager/prisma/schema.prisma).
+- **Fields:** `id`, `userId` (relation to User), `name` (`String`), `targetAmount` (`Decimal(12,2)`), `accumulatedBalance` (`Decimal(12,2)`, default `0.00`), `targetDate` (`DateTime`), `status` (`IN_PROGRESS` / `COMPLETED`), `createdAt`, `updatedAt`.
 - **Action:** Run `npx prisma db push && npx prisma generate`.
 
-### Task 2: `TSK-041` — Budget API Route Handlers & Warning Calculation Engine
-- **Objective:** Build `GET /api/budgets` (aggregating actual monthly spent against category budget limits) and `POST`, `PUT`, `DELETE` handlers.
-- **Threshold Rules:**
-  - Calculate percentage $P_b = (\text{Spent} / \text{Limit}) \times 100$.
-  - **Amber Warning Badge (`AlertTriangle`):** Triggered when $80\% \le P_b < 100\%$.
-  - **Crimson Red Alert Badge (`AlertOctagon`):** Triggered when $P_b \ge 100\%$.
-  - **Non-Blocking Overrun (`BR-010`):** Exceeding a budget limit MUST NOT block transaction creation.
+### Task 2: `TSK-051` — Savings Goal API Handlers & Atomic Contribution Handler
+- **Objective:** Build `GET /api/savings`, `POST /api/savings`, `PUT /api/savings/[id]`, `DELETE /api/savings/[id]`, and `POST /api/savings/[id]/contribute` route handlers.
+- **Rules:** `/contribute` atomically increments `accumulatedBalance` and updates status to `COMPLETED` when `accumulatedBalance >= targetAmount` (`BR-016`).
 
-### Task 3: `TSK-042` — Monthly Budgets Dashboard UI & Create/Edit Modal
-- **Objective:** Build `/budgets` view with monthly selector, category progress bars, spent vs limit text, warning threshold badges, and `CreateEditBudgetModal`.
+### Task 3: `TSK-052` — Savings Goals Dashboard UI & Contribution Modal
+- **Objective:** Build `/savings` view with target progress rings/bars, completed status gold badges, `CreateEditSavingsGoalModal`, and `RecordContributionModal`.
 
 ---
 
 ## 4. Verification & Testing Commands
 
-To run the complete automated test suite before starting new work:
+To run the complete automated test suite:
 
 ```bash
-# Run all unit and integration tests across auth, categories, and transactions:
-npm test
+# Run budget unit and integration test suite:
+npx tsx --test --test-concurrency=1 tests/unit/budget-calculation.test.ts tests/unit/budget-schema.test.ts tests/integration/budget-routes.test.ts
 
-# Run dev server:
-npm run dev
+# Production build verification:
+npm run build
 ```
 
 ---
@@ -86,8 +85,9 @@ npm run dev
 | **M1 — Authentication** | ✅ PASSED | 14 integration & unit tests passing |
 | **M2 — Category Domain** | ✅ PASSED | 13 integration & unit tests passing |
 | **M3 — Transactions Ledger** | ✅ PASSED | 16 integration & unit tests passing |
-| **M4 — Monthly Budgets** | ⏳ UP NEXT | Target for next session (`TSK-040` - `TSK-042`) |
-| **M5 — Savings Goals** | 📅 QUEUED | Target for subsequent session |
+| **M4 — Monthly Budgets** | ✅ PASSED | 16 unit & integration tests passing (`TSK-040` - `TSK-042`) |
+| **M5 — Savings Goals** | ⏳ UP NEXT | Target for next session (`TSK-050` - `TSK-052`) |
 | **M6 — Dashboard & Analytics** | 📅 QUEUED | Target for subsequent session |
 | **M7 — Account Settings** | 📅 QUEUED | Target for subsequent session |
 | **M8 — Production Release** | 📅 QUEUED | Target for final deployment |
+

@@ -24,9 +24,32 @@ export async function getAuthenticatedUserId(req?: Request | Headers): Promise<s
       reqHeaders = await headers();
     }
 
-    const session = await auth.api.getSession({
-      headers: reqHeaders,
-    });
+    let session: any = null;
+    let attempts = 0;
+
+    while (attempts < 2) {
+      try {
+        attempts++;
+        session = await auth.api.getSession({
+          headers: reqHeaders,
+        });
+        break;
+      } catch (err: any) {
+        // If Neon database cold start timed out (ETIMEDOUT) or connection failed, retry once after short delay
+        const isTimeout =
+          err?.code === "ETIMEDOUT" ||
+          err?.message?.includes("ETIMEDOUT") ||
+          err?.message?.includes("connection") ||
+          err?.status === "INTERNAL_SERVER_ERROR";
+
+        if (isTimeout && attempts < 2) {
+          console.warn(`[getAuthenticatedUserId] Session lookup attempt ${attempts} timed out / failed. Retrying...`);
+          await new Promise((r) => setTimeout(r, 500));
+          continue;
+        }
+        throw err;
+      }
+    }
 
     if (!session || !session.user || !session.user.id) {
       throw new UnauthorizedError("Unauthenticated request");

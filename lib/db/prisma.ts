@@ -5,12 +5,13 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 
 /**
- * Singleton instance of PrismaClient for Next.js App Router & Prisma v7.
- * Utilizes pg pool adapter for connection pooling to Neon PostgreSQL.
- * Configured with 15s connectionTimeoutMillis to accommodate Neon compute cold-start wake-ups.
+ * Singleton instance of PrismaClient & pg.Pool for Next.js App Router & Prisma v7.
+ * Reuses a single pg.Pool instance across HMR reloads to prevent Neon connection pool exhaustion (ETIMEDOUT).
+ * Configured with 30s connectionTimeoutMillis to accommodate Neon compute cold-start wake-ups.
  */
 const globalForPrisma = globalThis as unknown as {
   prisma: any | undefined;
+  pool: pg.Pool | undefined;
 };
 
 const purgePrismaCache = () => {
@@ -39,7 +40,11 @@ const getFreshPrismaClientClass = () => {
   return PrismaClient;
 };
 
-const createPrismaClient = () => {
+const getPgPool = (): pg.Pool => {
+  if (globalForPrisma.pool) {
+    return globalForPrisma.pool;
+  }
+
   const connectionString =
     process.env.DATABASE_URL ||
     process.env.DIRECT_URL ||
@@ -52,11 +57,20 @@ const createPrismaClient = () => {
   const pool = new pg.Pool({
     connectionString,
     ssl: { rejectUnauthorized: false },
-    max: 10,
+    max: 3, // Keep max pool size lightweight to avoid Neon PgBouncer pooler saturation
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 15000,
+    connectionTimeoutMillis: 30000, // 30s connection timeout for Neon cold-starts
   });
 
+  if (process.env.NODE_ENV !== "production") {
+    globalForPrisma.pool = pool;
+  }
+
+  return pool;
+};
+
+const createPrismaClient = () => {
+  const pool = getPgPool();
   const adapter = new PrismaPg(pool);
   const PrismaClientClass = getFreshPrismaClientClass();
 
@@ -71,7 +85,7 @@ const createPrismaClient = () => {
 
 const getPrismaInstance = (propName?: string | symbol): any => {
   if (globalForPrisma.prisma) {
-    // If accessing a model property (e.g. transaction, category) that is undefined on cached instance, force cache purge & client recreation
+    // If accessing a model property (e.g. transaction, category, budget) that is undefined on cached instance, force cache purge & client recreation
     if (
       typeof propName === "string" &&
       !propName.startsWith("$") &&
@@ -97,8 +111,7 @@ const getPrismaInstance = (propName?: string | symbol): any => {
 
 /**
  * Dynamic Proxy wrapper around PrismaClient.
- * Guarantees self-healing client re-instantiation and require.cache purging across Next.js HMR & dev server reloads
- * if model delegates (like transaction or category) are missing from in-memory module/global cache.
+ * Guarantees self-healing client re-instantiation and single pg.Pool reuse across Next.js HMR & dev server reloads.
  */
 export const prisma: any = new Proxy({} as any, {
   get(_target, prop) {

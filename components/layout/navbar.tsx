@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Wallet, LayoutDashboard, Tag, CreditCard } from "lucide-react";
+import { Wallet, LayoutDashboard, Tag, CreditCard, PieChart } from "lucide-react";
 import { useSession } from "@/lib/auth/auth-client";
 import { LogoutButton } from "@/components/layout/logout-button";
 
@@ -35,6 +35,13 @@ export function Navbar() {
             >
               <CreditCard className="w-4 h-4 text-[#38bdf8]" />
               Transactions
+            </Link>
+            <Link
+              href="/budgets"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-[#94a3b8] hover:text-[#dee3e8] hover:bg-[#22272b] transition-colors"
+            >
+              <PieChart className="w-4 h-4 text-[#38bdf8]" />
+              Budgets
             </Link>
             <Link
               href="/categories"

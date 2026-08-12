@@ -23,6 +23,7 @@ model User {
   profile       Profile?
   categories    Category[]
   transactions  Transaction[]
+  budgets       Budget[]
 
   @@map("user")
 }
@@ -43,6 +44,7 @@ model Category {
   updatedAt       DateTime      @updatedAt
 
   transactions    Transaction[]
+  budgets         Budget[]
 
   @@unique([userId, name, type])
   @@index([userId, isSystemDefault, type])
@@ -67,6 +69,23 @@ model Transaction {
   @@index([userId, categoryId, transactionDate])
   @@index([userId, type, amount])
   @@map("transaction")
+}
+
+model Budget {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  amount     Decimal  @db.Decimal(12, 2)
+  month      Int
+  year       Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, categoryId, month, year])
+  @@index([userId, year, month])
+  @@map("budget")
 }
 
 model Session {
