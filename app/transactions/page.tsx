@@ -33,20 +33,20 @@ import {
   AddEditTransactionModal,
   type CategoryItem,
 } from "@/components/transactions/add-edit-transaction-modal";
+import { useUserPreferences } from "@/lib/context/user-preferences-context";
 
-interface TransactionItem {
+export interface TransactionItem {
   id: string;
-  categoryId: string;
   amount: number;
   type: "INCOME" | "EXPENSE";
   transactionDate: string;
   merchantName?: string | null;
   notes?: string | null;
-  category: {
+  categoryId: string;
+  category?: {
     id: string;
     name: string;
     type: "INCOME" | "EXPENSE";
-    isSystemDefault: boolean;
   };
 }
 
@@ -58,6 +58,7 @@ interface PaginationMeta {
 }
 
 export default function TransactionsPage() {
+  const { formatCurrency } = useUserPreferences();
   const [transactions, setTransactions] = useState<TransactionItem[]>([]);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [pagination, setPagination] = useState<PaginationMeta>({
@@ -162,19 +163,19 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f1418] text-[#dee3e8]">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Banner Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-[#1b2024] rounded-2xl border border-[#303539] shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-[var(--card)] rounded-2xl border border-[var(--border)] shadow-xl">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#38bdf8]/10 border border-[#38bdf8]/20 text-[#38bdf8]">
                 Ledger Domain Management
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#dee3e8] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)] tracking-tight">
               Transactions Ledger
             </h1>
             <p className="text-sm text-[#94a3b8]">
@@ -389,10 +390,7 @@ export default function TransactionsPage() {
                             }
                           >
                             {txn.type === "INCOME" ? "+" : "-"}
-                            ${Number(txn.amount).toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
+                            {formatCurrency(txn.amount)}
                           </span>
                         </td>
                         <td className="py-3.5 px-4 text-right whitespace-nowrap">

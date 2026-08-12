@@ -28,7 +28,7 @@ interface AddEditTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  availableCategories: CategoryItem[];
+  availableCategories?: CategoryItem[];
   transactionToEdit?: {
     id: string;
     categoryId: string;
@@ -44,10 +44,28 @@ export function AddEditTransactionModal({
   isOpen,
   onClose,
   onSuccess,
-  availableCategories,
+  availableCategories: propCategories,
   transactionToEdit,
 }: AddEditTransactionModalProps) {
   const [serverError, setServerError] = useState<string | null>(null);
+  const [fetchedCategories, setFetchedCategories] = useState<CategoryItem[]>([]);
+
+  useEffect(() => {
+    if (isOpen && (!propCategories || propCategories.length === 0)) {
+      fetch("/api/categories")
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setFetchedCategories(data);
+          } else if (data && Array.isArray(data.categories)) {
+            setFetchedCategories(data.categories);
+          }
+        })
+        .catch((err) => console.error("Error fetching categories for modal:", err));
+    }
+  }, [isOpen, propCategories]);
+
+  const categories = propCategories && propCategories.length > 0 ? propCategories : fetchedCategories;
 
   const isEditing = !!transactionToEdit;
 
@@ -74,7 +92,7 @@ export function AddEditTransactionModal({
   const selectedCategoryId = watch("categoryId");
 
   // Filter categories matching the selected type (BR-003)
-  const compatibleCategories = availableCategories.filter(
+  const compatibleCategories = categories.filter(
     (c) => c.type === selectedType
   );
 
@@ -119,7 +137,7 @@ export function AddEditTransactionModal({
     } else {
       setValue("categoryId", "");
     }
-  }, [selectedType, availableCategories]);
+  }, [selectedType, categories]);
 
   if (!isOpen) return null;
 

@@ -8,6 +8,8 @@ import { CategoryType } from "@prisma/client";
 import { proxy } from "../../proxy";
 import { NextRequest } from "next/server";
 
+import { ensureDbConnected } from "../test-utils";
+
 function extractCookieHeader(setCookieHeader: string | null): string {
   if (!setCookieHeader) return "";
   return setCookieHeader
@@ -25,7 +27,7 @@ describe("Category API Routes (TSK-021)", () => {
 
   before(async () => {
     // Warm up Neon DB connection to handle serverless cold-start wakeups
-    await prisma.$queryRaw`SELECT 1`;
+    await ensureDbConnected();
 
     // Register user via Better Auth API to ensure valid session
     const authRes = await auth.api.signUpEmail({

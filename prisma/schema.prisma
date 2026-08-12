@@ -24,6 +24,7 @@ model User {
   categories    Category[]
   transactions  Transaction[]
   budgets       Budget[]
+  savingsGoals  SavingsGoal[]
 
   @@map("user")
 }
@@ -145,3 +146,26 @@ model Profile {
 
   @@map("profile")
 }
+
+enum SavingsGoalStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+model SavingsGoal {
+  id                 String            @id @default(cuid())
+  userId             String
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name               String
+  targetAmount       Decimal           @db.Decimal(12, 2)
+  accumulatedBalance Decimal           @default(0.00) @db.Decimal(12, 2)
+  targetDate         DateTime
+  status             SavingsGoalStatus @default(IN_PROGRESS)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([userId, status])
+  @@map("savings_goal")
+}
+

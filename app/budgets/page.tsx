@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { AddEditBudgetModal, type BudgetItem, type CategoryItem } from "@/components/budgets/add-edit-budget-modal";
 import { DeleteBudgetModal } from "@/components/budgets/delete-budget-modal";
+import { useUserPreferences } from "@/lib/context/user-preferences-context";
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
@@ -28,6 +29,7 @@ const MONTH_NAMES = [
 ];
 
 export default function BudgetsPage() {
+  const { formatCurrency } = useUserPreferences();
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState<number>(now.getUTCMonth() + 1);
   const [selectedYear, setSelectedYear] = useState<number>(now.getUTCFullYear());
@@ -141,19 +143,19 @@ export default function BudgetsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f1418] text-[#dee3e8]">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Header Banner & Controls */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-6 bg-[#1b2024] rounded-2xl border border-[#303539] shadow-xl">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-6 bg-[var(--card)] rounded-2xl border border-[var(--border)] shadow-xl">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#38bdf8]/10 border border-[#38bdf8]/20 text-[#38bdf8]">
                 Monthly Spending Ceilings & Threshold Warning Engine
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#dee3e8] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)] tracking-tight">
               Monthly Budgets
             </h1>
             <p className="text-sm text-[#94a3b8]">
@@ -220,21 +222,21 @@ export default function BudgetsPage() {
               <div className="p-4 rounded-xl bg-[#0f1418] border border-[#303539] space-y-1">
                 <span className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wider">Total Budgeted</span>
                 <p className="text-xl font-bold font-mono text-[#dee3e8]">
-                  ${summary.totalBudgeted.toFixed(2)}
+                  {formatCurrency(summary.totalBudgeted)}
                 </p>
               </div>
 
               <div className="p-4 rounded-xl bg-[#0f1418] border border-[#303539] space-y-1">
                 <span className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wider">Total Spent</span>
                 <p className="text-xl font-bold font-mono text-[#38bdf8]">
-                  ${summary.totalSpent.toFixed(2)}
+                  {formatCurrency(summary.totalSpent)}
                 </p>
               </div>
 
               <div className="p-4 rounded-xl bg-[#0f1418] border border-[#303539] space-y-1">
                 <span className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wider">Remaining</span>
                 <p className="text-xl font-bold font-mono text-emerald-400">
-                  ${summary.remaining.toFixed(2)}
+                  {formatCurrency(summary.remaining)}
                 </p>
               </div>
 
@@ -325,14 +327,14 @@ export default function BudgetsPage() {
                     <div className="space-y-0.5">
                       <span className="text-[11px] text-[#94a3b8] uppercase font-semibold">Spent</span>
                       <p className="text-lg font-bold font-mono text-[#dee3e8]">
-                        ${b.spent.toFixed(2)}
+                        {formatCurrency(b.spent)}
                       </p>
                     </div>
 
                     <div className="space-y-0.5 text-right">
                       <span className="text-[11px] text-[#94a3b8] uppercase font-semibold">Spending Limit</span>
                       <p className="text-lg font-bold font-mono text-[#38bdf8]">
-                        ${b.amount.toFixed(2)}
+                        {formatCurrency(b.amount)}
                       </p>
                     </div>
                   </div>
@@ -342,8 +344,8 @@ export default function BudgetsPage() {
                     <div className="flex justify-between items-center text-[11px] text-[#94a3b8]">
                       <span>
                         {b.status === "EXCEEDED"
-                          ? `Over budget by $${b.overrun.toFixed(2)}`
-                          : `$${b.remaining.toFixed(2)} remaining`}
+                          ? `Over budget by ${formatCurrency(b.overrun)}`
+                          : `${formatCurrency(b.remaining)} remaining`}
                       </span>
                       <span className="font-mono font-semibold text-[#dee3e8]">{b.percentage.toFixed(0)}%</span>
                     </div>

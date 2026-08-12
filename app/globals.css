@@ -1,11 +1,13 @@
 @import "tailwindcss";
 
 @layer base {
-  :root {
+  :root,
+  html.dark,
+  [data-theme="dark"] {
     --background: #0f1418;
     --foreground: #dee3e8;
 
-    --card: #1b2024;
+    --card: #161a1d;
     --card-foreground: #dee3e8;
 
     --popover: #1b2024;
@@ -14,10 +16,10 @@
     --primary: #38bdf8;
     --primary-foreground: #001e2c;
 
-    --secondary: #1e293b;
+    --secondary: #22272b;
     --secondary-foreground: #aeb9d0;
 
-    --muted: #252b2e;
+    --muted: #22272b;
     --muted-foreground: #94a3b8;
 
     --accent: #303539;
@@ -43,6 +45,46 @@
     --radius-md: 0.375rem;
     --radius-lg: 0.5rem;
     --radius-xl: 1rem;
+  }
+
+  html.light,
+  [data-theme="light"] {
+    --background: #f8fafc;
+    --foreground: #0f172a;
+
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+
+    --primary: #0284c7;
+    --primary-foreground: #ffffff;
+
+    --secondary: #f1f5f9;
+    --secondary-foreground: #334155;
+
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+
+    --accent: #e2e8f0;
+    --accent-foreground: #0f172a;
+
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+
+    --border: #cbd5e1;
+    --input: #e2e8f0;
+    --ring: #0284c7;
+
+    --income: #059669;
+    --income-foreground: #ffffff;
+
+    --expense: #e11d48;
+    --expense-foreground: #ffffff;
+
+    --warning: #d97706;
+    --warning-foreground: #ffffff;
   }
 }
 
@@ -84,14 +126,47 @@
   --radius-xl: var(--radius-xl);
 }
 
+html {
+  color-scheme: dark;
+}
+
+html.light {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Theme helper classes */
+.bg-app-bg {
+  background-color: var(--background);
+}
+.bg-app-card {
+  background-color: var(--card);
+}
+.bg-app-secondary {
+  background-color: var(--secondary);
+}
+.border-app-border {
+  border-color: var(--border);
+}
+.text-app-fg {
+  color: var(--foreground);
+}
+.text-app-muted {
+  color: var(--muted-foreground);
 }

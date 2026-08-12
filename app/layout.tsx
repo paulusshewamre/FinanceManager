@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { UserPreferencesProvider } from "@/lib/context/user-preferences-context";
 
 export const metadata: Metadata = {
   title: "Personal Finance Manager",
@@ -14,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased bg-[#0f1418] text-[#dee3e8] min-h-screen" suppressHydrationWarning>
-        {children}
+        <UserPreferencesProvider>{children}</UserPreferencesProvider>
       </body>
     </html>
   );

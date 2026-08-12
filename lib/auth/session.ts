@@ -26,8 +26,9 @@ export async function getAuthenticatedUserId(req?: Request | Headers): Promise<s
 
     let session: any = null;
     let attempts = 0;
+    const maxAttempts = 3;
 
-    while (attempts < 2) {
+    while (attempts < maxAttempts) {
       try {
         attempts++;
         session = await auth.api.getSession({
@@ -35,16 +36,18 @@ export async function getAuthenticatedUserId(req?: Request | Headers): Promise<s
         });
         break;
       } catch (err: any) {
-        // If Neon database cold start timed out (ETIMEDOUT) or connection failed, retry once after short delay
-        const isTimeout =
+        // Handle database cold-start timeouts or transient connection pool delays
+        const isTransientError =
           err?.code === "ETIMEDOUT" ||
           err?.message?.includes("ETIMEDOUT") ||
           err?.message?.includes("connection") ||
-          err?.status === "INTERNAL_SERVER_ERROR";
+          err?.status === "INTERNAL_SERVER_ERROR" ||
+          err?.body?.code === "FAILED_TO_GET_SESSION";
 
-        if (isTimeout && attempts < 2) {
-          console.warn(`[getAuthenticatedUserId] Session lookup attempt ${attempts} timed out / failed. Retrying...`);
-          await new Promise((r) => setTimeout(r, 500));
+        if (isTransientError && attempts < maxAttempts) {
+          const delay = attempts * 500;
+          console.warn(`[getAuthenticatedUserId] Session lookup attempt ${attempts} encountered transient DB delay. Retrying in ${delay}ms...`);
+          await new Promise((r) => setTimeout(r, delay));
           continue;
         }
         throw err;
