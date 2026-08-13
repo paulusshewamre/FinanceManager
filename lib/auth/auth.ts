@@ -23,17 +23,30 @@ function resolveBaseUrl(): string {
 }
 
 /**
+ * Dynamically compile exact trusted origins list for local development and Vercel deployments.
+ */
+function getTrustedOrigins(): string[] {
+  const origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://finance-manager-lake-two.vercel.app",
+  ];
+  if (process.env.BETTER_AUTH_URL) origins.push(process.env.BETTER_AUTH_URL);
+  if (process.env.NEXT_PUBLIC_APP_URL) origins.push(process.env.NEXT_PUBLIC_APP_URL);
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) origins.push(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
+  if (process.env.VERCEL_URL) origins.push(`https://${process.env.VERCEL_URL}`);
+
+  return Array.from(new Set(origins.filter((url): url is string => Boolean(url) && typeof url === "string")));
+}
+
+/**
  * Authoritative Better Auth Server Configuration.
  * Configured with Prisma ORM adapter and email/password authentication.
  */
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: resolveBaseUrl(),
-  trustedOrigins: [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://*.vercel.app",
-  ],
+  trustedOrigins: getTrustedOrigins(),
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
