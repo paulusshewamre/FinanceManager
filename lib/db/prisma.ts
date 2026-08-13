@@ -8,6 +8,7 @@ import { PrismaClient } from "@prisma/client";
 /**
  * Singleton instance of PrismaClient & pg.Pool for Next.js App Router & Prisma v7.
  * Reuses a single pg.Pool and PrismaClient instance across HMR reloads and serverless warm invocations.
+ * Includes build-safe fallback to prevent static route analysis failures when DATABASE_URL is not set at build time.
  */
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -22,15 +23,14 @@ const getPgPool = (): pg.Pool => {
   const connectionString =
     process.env.DATABASE_URL ||
     process.env.DIRECT_URL ||
-    process.env.DATABASE_URL_UNPOOLED;
-
-  if (!connectionString) {
-    throw new Error("DATABASE_URL environment variable is missing.");
-  }
+    process.env.DATABASE_URL_UNPOOLED ||
+    "postgresql://placeholder:placeholder@localhost:5432/placeholder";
 
   const pool = new pg.Pool({
     connectionString,
-    ssl: { rejectUnauthorized: false },
+    ssl: connectionString.includes("localhost")
+      ? false
+      : { rejectUnauthorized: false },
     max: 10, // Accommodate parallel Promise.all queries without pool queue timeouts
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 30000, // 30s connection timeout for Neon cold-starts
