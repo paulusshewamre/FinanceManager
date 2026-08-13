@@ -7,7 +7,7 @@ import { PrismaClient } from "@prisma/client";
 
 /**
  * Singleton instance of PrismaClient & pg.Pool for Next.js App Router & Prisma v7.
- * Reuses a single pg.Pool and PrismaClient instance across HMR reloads.
+ * Reuses a single pg.Pool and PrismaClient instance across HMR reloads and serverless warm invocations.
  */
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -38,10 +38,7 @@ const getPgPool = (): pg.Pool => {
     keepAliveInitialDelayMillis: 10000,
   });
 
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.pool = pool;
-  }
-
+  globalForPrisma.pool = pool;
   return pool;
 };
 
@@ -59,9 +56,6 @@ const createPrismaClient = (): PrismaClient => {
 };
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+globalForPrisma.prisma = prisma;
 
 export default prisma;
