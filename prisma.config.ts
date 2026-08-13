@@ -3,7 +3,7 @@ import { defineConfig } from "@prisma/config";
 
 export default defineConfig({
   datasource: {
-    url: process.env.DATABASE_URL,
+    url: process.env.DATABASE_URL || process.env.DIRECT_URL || "",
   },
   migrations: {
     seed: "npx tsx prisma/seed.ts",
