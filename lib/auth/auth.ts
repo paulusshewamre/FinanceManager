@@ -29,6 +29,7 @@ function getTrustedOrigins(): string[] {
   const origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://finance-manager-woad-nine.vercel.app",
     "https://finance-manager-lake-two.vercel.app",
   ];
   if (process.env.BETTER_AUTH_URL) origins.push(process.env.BETTER_AUTH_URL);
