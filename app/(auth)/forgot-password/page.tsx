@@ -67,25 +67,25 @@ export default function ForgotPasswordPage() {
   if (!mounted) {
     return (
       <div
-        className="min-h-screen flex items-center justify-center bg-[#0f1418] text-[#dee3e8] p-4"
+        className="min-h-screen flex items-center justify-center bg-background text-foreground p-4"
         suppressHydrationWarning
       />
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f1418] text-[#dee3e8] p-4" suppressHydrationWarning>
-      <Card className="w-full max-w-md bg-[#1b2024] border-[#303539] text-[#dee3e8] shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-4" suppressHydrationWarning>
+      <Card className="w-full max-w-md bg-card border-border text-card-foreground shadow-2xl">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-2">
-            <div className="p-3 bg-[#38bdf8]/10 rounded-xl border border-[#38bdf8]/20 text-[#38bdf8]">
+            <div className="p-3 bg-primary/10 rounded-xl border border-primary/20 text-primary">
               <KeyRound className="w-8 h-8" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-[#dee3e8] tracking-tight">
+          <CardTitle className="text-2xl font-bold text-foreground tracking-tight">
             Reset Password
           </CardTitle>
-          <CardDescription className="text-sm text-[#94a3b8]">
+          <CardDescription className="text-sm text-muted-foreground">
             Enter your account email to receive a password reset link
           </CardDescription>
         </CardHeader>
@@ -93,21 +93,21 @@ export default function ForgotPasswordPage() {
         <form onSubmit={handleSubmit(onSubmit)} suppressHydrationWarning>
           <CardContent className="space-y-4">
             {serverError && (
-              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm flex items-start gap-2.5" suppressHydrationWarning>
                 <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                 <span>{serverError}</span>
               </div>
             )}
 
             {successMessage && (
-              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
                 <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
                 <span>{successMessage}</span>
               </div>
             )}
 
             <div className="space-y-1.5" suppressHydrationWarning>
-              <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
+              <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Email Address
               </label>
               <Input
@@ -116,10 +116,10 @@ export default function ForgotPasswordPage() {
                 placeholder="jane@example.com"
                 disabled={isSubmitting || !!successMessage}
                 {...register("email")}
-                className="bg-[#0f1418] border-[#303539] focus:border-[#38bdf8] text-[#dee3e8]"
+                className="bg-background border-border text-foreground focus-visible:ring-primary"
               />
               {errors.email && (
-                <p className="text-xs text-rose-400">{errors.email.message}</p>
+                <p className="text-xs text-destructive">{errors.email.message}</p>
               )}
             </div>
           </CardContent>
@@ -128,7 +128,7 @@ export default function ForgotPasswordPage() {
             <Button
               type="submit"
               disabled={isSubmitting || !!successMessage}
-              className="w-full bg-[#38bdf8] text-[#001e2c] hover:bg-[#38bdf8]/90 font-semibold py-2.5 rounded-lg transition-all"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold py-2.5 rounded-lg transition-all"
             >
               {isSubmitting ? (
                 <>
@@ -140,10 +140,10 @@ export default function ForgotPasswordPage() {
               )}
             </Button>
 
-            <div className="text-center text-xs text-[#94a3b8]" suppressHydrationWarning>
+            <div className="text-center text-xs text-muted-foreground" suppressHydrationWarning>
               <Link
                 href="/login"
-                className="inline-flex items-center text-[#38bdf8] hover:underline font-semibold"
+                className="inline-flex items-center text-primary hover:underline font-semibold"
               >
                 <ArrowLeft className="w-3.5 h-3.5 mr-1" />
                 Back to sign in

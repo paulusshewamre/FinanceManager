@@ -3,19 +3,19 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, DollarSign, AlertCircle, X, Calendar, Store, FileText } from "lucide-react";
+import { Loader2, DollarSign, AlertCircle, Calendar, Store, FileText } from "lucide-react";
 import { transactionSchema, type TransactionInput } from "@/lib/validations/transaction";
 import { CategoryTypeEnum } from "@/lib/validations/category";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export interface CategoryItem {
   id: string;
@@ -139,8 +139,6 @@ export function AddEditTransactionModal({
     }
   }, [selectedType, categories]);
 
-  if (!isOpen) return null;
-
   const onSubmit = async (data: TransactionInput) => {
     setServerError(null);
     try {
@@ -175,190 +173,190 @@ export function AddEditTransactionModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-      <Card className="w-full max-w-lg bg-[#1b2024] border-[#303539] text-[#dee3e8] shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
-        <button
-          onClick={onClose}
-          type="button"
-          className="absolute top-4 right-4 p-1.5 text-[#94a3b8] hover:text-[#dee3e8] hover:bg-[#22272b] rounded-lg transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <CardHeader className="space-y-1">
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          setServerError(null);
+          onClose();
+        }
+      }}
+    >
+      <DialogContent className="sm:max-w-lg bg-card border-border text-card-foreground shadow-2xl p-6">
+        <DialogHeader className="space-y-1.5">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-[#38bdf8]/10 rounded-xl border border-[#38bdf8]/20 text-[#38bdf8]">
+            <div className="p-2 bg-primary/10 rounded-xl border border-primary/20 text-primary">
               <DollarSign className="w-5 h-5" />
             </div>
-            <CardTitle className="text-xl font-bold text-[#dee3e8]">
-              {isEditing ? "Edit Transaction" : "Log New Transaction"}
-            </CardTitle>
+            <div>
+              <DialogTitle className="text-xl font-bold text-foreground">
+                {isEditing ? "Edit Transaction" : "Log New Transaction"}
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                {isEditing
+                  ? "Update transaction amounts, backdated dates, or categories"
+                  : "Record an income or expense transaction in your ledger"}
+              </DialogDescription>
+            </div>
           </div>
-          <CardDescription className="text-xs text-[#94a3b8]">
-            {isEditing
-              ? "Update transaction amounts, backdated dates, or categories"
-              : "Record an income or expense transaction in your ledger"}
-          </CardDescription>
-        </CardHeader>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4 pt-2">
-            {serverError && (
-              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{serverError}</span>
-              </div>
-            )}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-1">
+          {serverError && (
+            <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-xs flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{serverError}</span>
+            </div>
+          )}
 
-            {/* Type Switcher */}
+          {/* Type Switcher */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Flow Type
+            </label>
+            <div className="grid grid-cols-2 gap-2 p-1 bg-muted/60 rounded-lg border border-border">
+              <button
+                type="button"
+                onClick={() => setValue("type", CategoryTypeEnum.EXPENSE)}
+                className={`py-2 text-xs font-semibold rounded-md transition-all ${
+                  selectedType === CategoryTypeEnum.EXPENSE
+                    ? "bg-rose-500/20 text-rose-500 dark:text-rose-400 border border-rose-500/40 shadow-xs font-bold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                - Expense
+              </button>
+              <button
+                type="button"
+                onClick={() => setValue("type", CategoryTypeEnum.INCOME)}
+                className={`py-2 text-xs font-semibold rounded-md transition-all ${
+                  selectedType === CategoryTypeEnum.INCOME
+                    ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 shadow-xs font-bold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                + Income
+              </button>
+            </div>
+          </div>
+
+          {/* Amount & Category Inputs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
-                Flow Type
+              <label htmlFor="amount" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Amount ($)
               </label>
-              <div className="grid grid-cols-2 gap-2 p-1 bg-[#0f1418] rounded-lg border border-[#303539]">
-                <button
-                  type="button"
-                  onClick={() => setValue("type", CategoryTypeEnum.EXPENSE)}
-                  className={`py-2 text-xs font-semibold rounded-md transition-all ${
-                    selectedType === CategoryTypeEnum.EXPENSE
-                      ? "bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-xs"
-                      : "text-[#94a3b8] hover:text-[#dee3e8]"
-                  }`}
-                >
-                  - Expense
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setValue("type", CategoryTypeEnum.INCOME)}
-                  className={`py-2 text-xs font-semibold rounded-md transition-all ${
-                    selectedType === CategoryTypeEnum.INCOME
-                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-xs"
-                      : "text-[#94a3b8] hover:text-[#dee3e8]"
-                  }`}
-                >
-                  + Income
-                </button>
-              </div>
-            </div>
-
-            {/* Amount & Category Inputs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label htmlFor="amount" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
-                  Amount ($)
-                </label>
-                <Input
-                  id="amount"
-                  type="number"
-                  step="0.01"
-                  placeholder="0.00"
-                  disabled={isSubmitting}
-                  {...register("amount")}
-                  className="bg-[#0f1418] border-[#303539] focus:border-[#38bdf8] text-[#dee3e8] font-mono"
-                />
-                {errors.amount && (
-                  <p className="text-xs text-rose-400">{errors.amount.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <label htmlFor="categoryId" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
-                  Category
-                </label>
-                <select
-                  id="categoryId"
-                  disabled={isSubmitting}
-                  {...register("categoryId")}
-                  className="w-full h-10 bg-[#0f1418] border border-[#303539] rounded-md px-3 text-xs text-[#dee3e8] focus:border-[#38bdf8] outline-none"
-                >
-                  {compatibleCategories.length === 0 ? (
-                    <option value="">No {selectedType.toLowerCase()} categories found</option>
-                  ) : (
-                    compatibleCategories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name} {cat.isSystemDefault ? "(Default)" : ""}
-                      </option>
-                    ))
-                  )}
-                </select>
-                {errors.categoryId && (
-                  <p className="text-xs text-rose-400">{errors.categoryId.message}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Date & Merchant Inputs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label htmlFor="transactionDate" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0] flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-[#38bdf8]" />
-                  Date & Time
-                </label>
-                <Input
-                  id="transactionDate"
-                  type="datetime-local"
-                  disabled={isSubmitting}
-                  {...register("transactionDate")}
-                  className="bg-[#0f1418] border-[#303539] focus:border-[#38bdf8] text-[#dee3e8]"
-                />
-                {errors.transactionDate && (
-                  <p className="text-xs text-rose-400">{errors.transactionDate.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <label htmlFor="merchantName" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0] flex items-center gap-1.5">
-                  <Store className="w-3.5 h-3.5 text-[#38bdf8]" />
-                  Merchant / Payee
-                </label>
-                <Input
-                  id="merchantName"
-                  type="text"
-                  placeholder="e.g. Starbucks, Client Payment"
-                  disabled={isSubmitting}
-                  {...register("merchantName")}
-                  className="bg-[#0f1418] border-[#303539] focus:border-[#38bdf8] text-[#dee3e8]"
-                />
-                {errors.merchantName && (
-                  <p className="text-xs text-rose-400">{errors.merchantName.message}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Notes Input */}
-            <div className="space-y-1.5">
-              <label htmlFor="notes" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0] flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-[#38bdf8]" />
-                Notes (Optional)
-              </label>
-              <textarea
-                id="notes"
-                rows={2}
-                placeholder="Additional details or reference notes..."
+              <Input
+                id="amount"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
                 disabled={isSubmitting}
-                {...register("notes")}
-                className="w-full bg-[#0f1418] border border-[#303539] rounded-md p-2.5 text-xs text-[#dee3e8] focus:border-[#38bdf8] outline-none resize-none"
+                {...register("amount")}
+                className="bg-background border-border text-foreground font-mono focus-visible:ring-primary text-xs"
               />
-              {errors.notes && (
-                <p className="text-xs text-rose-400">{errors.notes.message}</p>
+              {errors.amount && (
+                <p className="text-xs text-destructive">{errors.amount.message}</p>
               )}
             </div>
-          </CardContent>
 
-          <CardFooter className="flex justify-end gap-3 pt-2">
+            <div className="space-y-1.5">
+              <label htmlFor="categoryId" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Category
+              </label>
+              <select
+                id="categoryId"
+                disabled={isSubmitting}
+                {...register("categoryId")}
+                className="w-full h-10 bg-background border border-border rounded-lg px-3 text-xs text-foreground focus:border-primary outline-none"
+              >
+                {compatibleCategories.length === 0 ? (
+                  <option value="">No {selectedType.toLowerCase()} categories found</option>
+                ) : (
+                  compatibleCategories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name} {cat.isSystemDefault ? "(Default)" : ""}
+                    </option>
+                  ))
+                )}
+              </select>
+              {errors.categoryId && (
+                <p className="text-xs text-destructive">{errors.categoryId.message}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Date & Merchant Inputs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label htmlFor="transactionDate" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-primary" />
+                Date & Time
+              </label>
+              <Input
+                id="transactionDate"
+                type="datetime-local"
+                disabled={isSubmitting}
+                {...register("transactionDate")}
+                className="bg-background border-border text-foreground focus-visible:ring-primary text-xs"
+              />
+              {errors.transactionDate && (
+                <p className="text-xs text-destructive">{errors.transactionDate.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="merchantName" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <Store className="w-3.5 h-3.5 text-primary" />
+                Merchant / Payee
+              </label>
+              <Input
+                id="merchantName"
+                type="text"
+                placeholder="e.g. Starbucks, Client Payment"
+                disabled={isSubmitting}
+                {...register("merchantName")}
+                className="bg-background border-border text-foreground focus-visible:ring-primary text-xs"
+              />
+              {errors.merchantName && (
+                <p className="text-xs text-destructive">{errors.merchantName.message}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Notes Input */}
+          <div className="space-y-1.5">
+            <label htmlFor="notes" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-primary" />
+              Notes (Optional)
+            </label>
+            <textarea
+              id="notes"
+              rows={2}
+              placeholder="Additional details or reference notes..."
+              disabled={isSubmitting}
+              {...register("notes")}
+              className="w-full bg-background border border-border rounded-lg p-2.5 text-xs text-foreground focus:border-primary outline-none resize-none"
+            />
+            {errors.notes && (
+              <p className="text-xs text-destructive">{errors.notes.message}</p>
+            )}
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-3 pt-4 border-t border-border">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
-              className="border-[#303539] bg-[#0f1418] text-[#dee3e8] hover:bg-[#22272b]"
+              className="border-border bg-background text-foreground hover:bg-muted font-medium"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-[#38bdf8] text-[#001e2c] hover:bg-[#38bdf8]/90 font-semibold"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
             >
               {isSubmitting ? (
                 <>
@@ -371,9 +369,9 @@ export function AddEditTransactionModal({
                 "Log Transaction"
               )}
             </Button>
-          </CardFooter>
+          </DialogFooter>
         </form>
-      </Card>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

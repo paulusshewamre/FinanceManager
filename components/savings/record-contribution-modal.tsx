@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PiggyBank, Sparkles } from "lucide-react";
+import { PiggyBank, Sparkles, Loader2, Plus } from "lucide-react";
 import { SavingsGoal } from "./add-edit-savings-modal";
+import { useUserPreferences } from "@/lib/context/user-preferences-context";
 
 interface RecordContributionModalProps {
   open: boolean;
@@ -27,6 +28,7 @@ export function RecordContributionModal({
   goal,
   onSuccess,
 }: RecordContributionModalProps) {
+  const { formatCurrency, currencySymbol } = useUserPreferences();
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +79,12 @@ export function RecordContributionModal({
         body: JSON.stringify({ amount: parsed }),
       });
 
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        data = { error: `Server returned HTTP status ${res.status}` };
+      }
 
       if (!res.ok) {
         throw new Error(data.error || "Failed to record contribution");
@@ -94,55 +101,55 @@ export function RecordContributionModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[440px] bg-[#161a1d] border-[#303539] text-[#dee3e8]">
-        <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400">
+      <DialogContent className="sm:max-w-[460px] bg-card border-border text-card-foreground shadow-2xl p-6">
+        <DialogHeader className="space-y-1.5">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-600 dark:text-emerald-400">
               <PiggyBank className="w-5 h-5" />
             </div>
             <div>
-              <DialogTitle className="text-[#dee3e8] text-xl font-semibold">
-                Record Contribution
+              <DialogTitle className="text-foreground text-xl font-bold">
+                Log Contribution
               </DialogTitle>
-              <DialogDescription className="text-[#94a3b8] text-xs">
-                Add funds towards <span className="font-semibold text-[#dee3e8]">{goal.name}</span>
+              <DialogDescription className="text-muted-foreground text-xs mt-0.5">
+                Add funds towards <span className="font-semibold text-foreground">{goal.name}</span>
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-1">
           {error && (
-            <div className="p-3 text-xs rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 font-medium">
+            <div className="p-3 text-xs rounded-xl bg-destructive/10 border border-destructive/30 text-destructive font-medium">
               {error}
             </div>
           )}
 
           {/* Goal Metrics Summary Box */}
-          <div className="p-3.5 rounded-xl bg-[#22272b] border border-[#303539] space-y-2">
+          <div className="p-3.5 rounded-xl bg-muted/40 border border-border space-y-2">
             <div className="flex justify-between items-center text-xs">
-              <span className="text-[#94a3b8]">Current Saved:</span>
-              <span className="font-mono font-semibold text-emerald-400">
-                ${currentAccumulated.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+              <span className="text-muted-foreground">Current Saved:</span>
+              <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                {formatCurrency(currentAccumulated)}
               </span>
             </div>
             <div className="flex justify-between items-center text-xs">
-              <span className="text-[#94a3b8]">Target Goal:</span>
-              <span className="font-mono font-medium text-[#dee3e8]">
-                ${targetAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+              <span className="text-muted-foreground">Target Goal:</span>
+              <span className="font-mono font-medium text-foreground">
+                {formatCurrency(targetAmount)}
               </span>
             </div>
-            <div className="flex justify-between items-center text-xs pt-1 border-t border-[#303539]">
-              <span className="text-[#94a3b8]">Remaining Target:</span>
-              <span className="font-mono font-medium text-amber-400">
-                ${remaining.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+            <div className="flex justify-between items-center text-xs pt-1.5 border-t border-border/60">
+              <span className="text-muted-foreground">Remaining Target:</span>
+              <span className="font-mono font-semibold text-warning">
+                {formatCurrency(remaining)}
               </span>
             </div>
           </div>
 
           {/* Quick Presets */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#94a3b8] uppercase tracking-wider">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Quick Add Presets
             </label>
             <div className="flex flex-wrap gap-2">
@@ -151,72 +158,89 @@ export function RecordContributionModal({
                   key={preset}
                   type="button"
                   onClick={() => handlePreset(preset)}
-                  className="px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-[#22272b] hover:bg-[#38bdf8]/10 text-[#dee3e8] hover:text-[#38bdf8] border border-[#303539] hover:border-[#38bdf8]/30 transition-colors"
+                  className="px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-muted/70 hover:bg-primary/10 text-foreground hover:text-primary border border-border hover:border-primary/30 transition-colors min-h-[36px]"
                 >
-                  +${preset}
+                  +{currencySymbol}{preset}
                 </button>
               ))}
               {remaining > 0 && (
                 <button
                   type="button"
                   onClick={() => handlePreset(remaining)}
-                  className="px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition-colors"
+                  className="px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 transition-colors min-h-[36px]"
                 >
-                  Fill Remaining (${remaining.toFixed(2)})
+                  Fill Remaining ({formatCurrency(remaining)})
                 </button>
               )}
             </div>
           </div>
 
+          {/* Custom Contribution Amount Input */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#94a3b8] uppercase tracking-wider">
-              Contribution Amount ($)
+            <label htmlFor="contribution-amount" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Contribution Amount ({currencySymbol})
             </label>
-            <Input
-              type="number"
-              step="0.01"
-              min="0.01"
-              placeholder="e.g. 100.00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              required
-              className="bg-[#22272b] border-[#303539] text-[#dee3e8] placeholder-[#64748b] font-mono text-base focus:border-[#38bdf8]"
-            />
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-mono">
+                {currencySymbol}
+              </span>
+              <Input
+                id="contribution-amount"
+                type="number"
+                step="0.01"
+                min="0.01"
+                placeholder="100.00"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                required
+                className="bg-background border-border text-foreground placeholder:text-muted-foreground font-mono text-base focus-visible:ring-primary pl-8 min-h-[44px]"
+              />
+            </div>
           </div>
 
           {/* Live Progress Preview */}
           {parsedContribution > 0 && (
-            <div className="p-3 rounded-xl bg-[#1b2024] border border-[#303539] space-y-1.5">
+            <div className="p-3 rounded-xl bg-card border border-border/80 space-y-1.5">
               <div className="flex justify-between items-center text-xs">
-                <span className="text-[#94a3b8]">New Balance:</span>
-                <span className="font-mono font-semibold text-emerald-400">
-                  ${newAccumulated.toLocaleString("en-US", { minimumFractionDigits: 2 })} ({newPercentage}%)
+                <span className="text-muted-foreground">New Balance Preview:</span>
+                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                  {formatCurrency(newAccumulated)} ({newPercentage}%)
                 </span>
               </div>
               {willComplete && (
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-300 pt-1">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-300 pt-1">
+                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
                   <span>This contribution completes your savings goal! 🎉</span>
                 </div>
               )}
             </div>
           )}
 
-          <DialogFooter className="pt-4 border-t border-[#303539] gap-2">
+          <DialogFooter className="pt-4 border-t border-border gap-2 sm:gap-3">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="border-[#303539] bg-[#1b2024] hover:bg-[#22272b] text-[#94a3b8]"
+              className="border-border bg-background hover:bg-muted text-muted-foreground hover:text-foreground font-medium"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="bg-emerald-500 hover:bg-emerald-600 text-[#0f172a] font-semibold"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-1.5"
             >
-              {loading ? "Recording..." : "Record Contribution"}
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Recording...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" />
+                  Record Contribution
+                </>
+              )}
             </Button>
           </DialogFooter>
         </form>

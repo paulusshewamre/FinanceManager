@@ -43,7 +43,7 @@ export function LogoutButton({
       variant={variant}
       onClick={handleLogout}
       disabled={isLoggingOut}
-      className={`flex items-center gap-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 ${className}`}
+      className={`flex items-center gap-2 text-destructive hover:bg-destructive/10 transition-colors ${className}`}
       title="Sign out of your account"
     >
       {isLoggingOut ? (

@@ -3,18 +3,18 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Tag, AlertCircle, X } from "lucide-react";
+import { Loader2, Tag, AlertCircle } from "lucide-react";
 import { categorySchema, type CategoryInput, CategoryTypeEnum } from "@/lib/validations/category";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface AddEditCategoryModalProps {
   isOpen: boolean;
@@ -70,8 +70,6 @@ export function AddEditCategoryModal({
     setServerError(null);
   }, [categoryToEdit, reset, isOpen]);
 
-  if (!isOpen) return null;
-
   const onSubmit = async (data: CategoryInput) => {
     setServerError(null);
     try {
@@ -101,105 +99,105 @@ export function AddEditCategoryModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-      <Card className="w-full max-w-md bg-[#1b2024] border-[#303539] text-[#dee3e8] shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
-        <button
-          onClick={onClose}
-          type="button"
-          className="absolute top-4 right-4 p-1.5 text-[#94a3b8] hover:text-[#dee3e8] hover:bg-[#22272b] rounded-lg transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <CardHeader className="space-y-1">
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          setServerError(null);
+          onClose();
+        }
+      }}
+    >
+      <DialogContent className="sm:max-w-md bg-card border-border text-card-foreground shadow-2xl p-6">
+        <DialogHeader className="space-y-1.5">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-[#38bdf8]/10 rounded-xl border border-[#38bdf8]/20 text-[#38bdf8]">
+            <div className="p-2 bg-primary/10 rounded-xl border border-primary/20 text-primary">
               <Tag className="w-5 h-5" />
             </div>
-            <CardTitle className="text-xl font-bold text-[#dee3e8]">
-              {isEditing ? "Edit Custom Category" : "Add Custom Category"}
-            </CardTitle>
+            <div>
+              <DialogTitle className="text-xl font-bold text-foreground">
+                {isEditing ? "Edit Custom Category" : "Add Custom Category"}
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                {isEditing
+                  ? "Update custom category name or flow type"
+                  : "Create a new custom category for organizing your ledger"}
+              </DialogDescription>
+            </div>
           </div>
-          <CardDescription className="text-xs text-[#94a3b8]">
-            {isEditing
-              ? "Update custom category name or flow type"
-              : "Create a new custom category for organizing your ledger"}
-          </CardDescription>
-        </CardHeader>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4 pt-2">
-            {serverError && (
-              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{serverError}</span>
-              </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-1">
+          {serverError && (
+            <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-xs flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{serverError}</span>
+            </div>
+          )}
+
+          {/* Category Type Switcher */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Category Type
+            </label>
+            <div className="grid grid-cols-2 gap-2 p-1 bg-muted/60 rounded-lg border border-border">
+              <button
+                type="button"
+                onClick={() => setValue("type", CategoryTypeEnum.EXPENSE)}
+                className={`py-2 text-xs font-semibold rounded-md transition-all ${
+                  selectedType === CategoryTypeEnum.EXPENSE
+                    ? "bg-rose-500/20 text-rose-500 dark:text-rose-400 border border-rose-500/40 shadow-xs font-bold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Expense Category
+              </button>
+              <button
+                type="button"
+                onClick={() => setValue("type", CategoryTypeEnum.INCOME)}
+                className={`py-2 text-xs font-semibold rounded-md transition-all ${
+                  selectedType === CategoryTypeEnum.INCOME
+                    ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 shadow-xs font-bold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Income Category
+              </button>
+            </div>
+          </div>
+
+          {/* Category Name Input */}
+          <div className="space-y-1.5">
+            <label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Category Name
+            </label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="e.g. Subscriptions, Gym, Consulting"
+              disabled={isSubmitting}
+              {...register("name")}
+              className="bg-background border-border text-foreground focus-visible:ring-primary text-xs"
+            />
+            {errors.name && (
+              <p className="text-xs text-destructive">{errors.name.message}</p>
             )}
+          </div>
 
-            {/* Category Type Switcher */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
-                Category Type
-              </label>
-              <div className="grid grid-cols-2 gap-2 p-1 bg-[#0f1418] rounded-lg border border-[#303539]">
-                <button
-                  type="button"
-                  onClick={() => setValue("type", CategoryTypeEnum.EXPENSE)}
-                  className={`py-2 text-xs font-semibold rounded-md transition-all ${
-                    selectedType === CategoryTypeEnum.EXPENSE
-                      ? "bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-xs"
-                      : "text-[#94a3b8] hover:text-[#dee3e8]"
-                  }`}
-                >
-                  Expense Category
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setValue("type", CategoryTypeEnum.INCOME)}
-                  className={`py-2 text-xs font-semibold rounded-md transition-all ${
-                    selectedType === CategoryTypeEnum.INCOME
-                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-xs"
-                      : "text-[#94a3b8] hover:text-[#dee3e8]"
-                  }`}
-                >
-                  Income Category
-                </button>
-              </div>
-            </div>
-
-            {/* Category Name Input */}
-            <div className="space-y-1.5">
-              <label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
-                Category Name
-              </label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="e.g. Subscriptions, Gym, Consulting"
-                disabled={isSubmitting}
-                {...register("name")}
-                className="bg-[#0f1418] border-[#303539] focus:border-[#38bdf8] text-[#dee3e8]"
-              />
-              {errors.name && (
-                <p className="text-xs text-rose-400">{errors.name.message}</p>
-              )}
-            </div>
-          </CardContent>
-
-          <CardFooter className="flex justify-end gap-3 pt-2">
+          <DialogFooter className="gap-2 sm:gap-3 pt-4 border-t border-border">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
-              className="border-[#303539] bg-[#0f1418] text-[#dee3e8] hover:bg-[#22272b]"
+              className="border-border bg-background text-foreground hover:bg-muted font-medium"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-[#38bdf8] text-[#001e2c] hover:bg-[#38bdf8]/90 font-semibold"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
             >
               {isSubmitting ? (
                 <>
@@ -212,9 +210,9 @@ export function AddEditCategoryModal({
                 "Create Category"
               )}
             </Button>
-          </CardFooter>
+          </DialogFooter>
         </form>
-      </Card>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -79,14 +79,14 @@ function ResetPasswordForm() {
 
   if (!mounted) {
     return (
-      <Card className="w-full max-w-md bg-[#1b2024] border-[#303539] text-[#dee3e8] shadow-2xl">
+      <Card className="w-full max-w-md bg-card border-border text-card-foreground shadow-2xl">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-2">
-            <div className="p-3 bg-[#38bdf8]/10 rounded-xl border border-[#38bdf8]/20 text-[#38bdf8]">
+            <div className="p-3 bg-primary/10 rounded-xl border border-primary/20 text-primary">
               <Lock className="w-8 h-8" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-[#dee3e8] tracking-tight">
+          <CardTitle className="text-2xl font-bold text-foreground tracking-tight">
             Set New Password
           </CardTitle>
         </CardHeader>
@@ -95,17 +95,17 @@ function ResetPasswordForm() {
   }
 
   return (
-    <Card className="w-full max-w-md bg-[#1b2024] border-[#303539] text-[#dee3e8] shadow-2xl">
+    <Card className="w-full max-w-md bg-card border-border text-card-foreground shadow-2xl">
       <CardHeader className="space-y-2 text-center">
         <div className="flex justify-center mb-2">
-          <div className="p-3 bg-[#38bdf8]/10 rounded-xl border border-[#38bdf8]/20 text-[#38bdf8]">
+          <div className="p-3 bg-primary/10 rounded-xl border border-primary/20 text-primary">
             <Lock className="w-8 h-8" />
           </div>
         </div>
-        <CardTitle className="text-2xl font-bold text-[#dee3e8] tracking-tight">
+        <CardTitle className="text-2xl font-bold text-foreground tracking-tight">
           Set New Password
         </CardTitle>
-        <CardDescription className="text-sm text-[#94a3b8]">
+        <CardDescription className="text-sm text-muted-foreground">
           Enter your new password below to update your account credentials
         </CardDescription>
       </CardHeader>
@@ -113,28 +113,28 @@ function ResetPasswordForm() {
       <form onSubmit={handleSubmit(onSubmit)} suppressHydrationWarning>
         <CardContent className="space-y-4">
           {!token && (
-            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
+            <div className="p-3 rounded-lg bg-warning/10 border border-warning/30 text-warning text-sm flex items-start gap-2.5" suppressHydrationWarning>
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
               <span>Missing reset token. Please use the reset link provided in your email.</span>
             </div>
           )}
 
           {serverError && (
-            <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
+            <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm flex items-start gap-2.5" suppressHydrationWarning>
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
               <span>{serverError}</span>
             </div>
           )}
 
           {successMessage && (
-            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
+            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-sm flex items-start gap-2.5" suppressHydrationWarning>
               <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
               <span>{successMessage}</span>
             </div>
           )}
 
           <div className="space-y-1.5" suppressHydrationWarning>
-            <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
+            <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               New Password
             </label>
             <Input
@@ -143,15 +143,15 @@ function ResetPasswordForm() {
               placeholder="••••••••"
               disabled={isSubmitting || !token || !!successMessage}
               {...register("password")}
-              className="bg-[#0f1418] border-[#303539] focus:border-[#38bdf8] text-[#dee3e8]"
+              className="bg-background border-border text-foreground focus-visible:ring-primary"
             />
             {errors.password && (
-              <p className="text-xs text-rose-400">{errors.password.message}</p>
+              <p className="text-xs text-destructive">{errors.password.message}</p>
             )}
           </div>
 
           <div className="space-y-1.5" suppressHydrationWarning>
-            <label htmlFor="confirmPassword" className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0]">
+            <label htmlFor="confirmPassword" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Confirm New Password
             </label>
             <Input
@@ -160,10 +160,10 @@ function ResetPasswordForm() {
               placeholder="••••••••"
               disabled={isSubmitting || !token || !!successMessage}
               {...register("confirmPassword")}
-              className="bg-[#0f1418] border-[#303539] focus:border-[#38bdf8] text-[#dee3e8]"
+              className="bg-background border-border text-foreground focus-visible:ring-primary"
             />
             {errors.confirmPassword && (
-              <p className="text-xs text-rose-400">{errors.confirmPassword.message}</p>
+              <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>
             )}
           </div>
         </CardContent>
@@ -172,7 +172,7 @@ function ResetPasswordForm() {
           <Button
             type="submit"
             disabled={isSubmitting || !token || !!successMessage}
-            className="w-full bg-[#38bdf8] text-[#001e2c] hover:bg-[#38bdf8]/90 font-semibold py-2.5 rounded-lg transition-all"
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold py-2.5 rounded-lg transition-all"
           >
             {isSubmitting ? (
               <>
@@ -184,10 +184,10 @@ function ResetPasswordForm() {
             )}
           </Button>
 
-          <div className="text-center text-xs text-[#94a3b8]">
+          <div className="text-center text-xs text-muted-foreground">
             <Link
               href="/login"
-              className="inline-flex items-center text-[#38bdf8] hover:underline font-semibold"
+              className="inline-flex items-center text-primary hover:underline font-semibold"
             >
               <ArrowLeft className="w-3.5 h-3.5 mr-1" />
               Back to sign in
@@ -201,10 +201,10 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f1418] text-[#dee3e8] p-4" suppressHydrationWarning>
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-4" suppressHydrationWarning>
       <Suspense
         fallback={
-          <div className="flex items-center justify-center text-[#94a3b8]">
+          <div className="flex items-center justify-center text-muted-foreground">
             <Loader2 className="w-6 h-6 animate-spin mr-2" />
             Loading reset form...
           </div>

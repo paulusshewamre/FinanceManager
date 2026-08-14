@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Trash2, AlertTriangle, Loader2, X, ArrowRightLeft } from "lucide-react";
+import { Trash2, AlertTriangle, Loader2, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export interface CategoryItem {
   id: string;
@@ -54,7 +54,7 @@ export function DeleteCategoryModal({
     setServerError(null);
   }, [categoryToDelete, isOpen]);
 
-  if (!isOpen || !categoryToDelete) return null;
+  if (!categoryToDelete) return null;
 
   const handleDelete = async () => {
     setServerError(null);
@@ -87,57 +87,59 @@ export function DeleteCategoryModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-      <Card className="w-full max-w-md bg-[#1b2024] border-[#303539] text-[#dee3e8] shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
-        <button
-          onClick={onClose}
-          type="button"
-          className="absolute top-4 right-4 p-1.5 text-[#94a3b8] hover:text-[#dee3e8] hover:bg-[#22272b] rounded-lg transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <CardHeader className="space-y-1">
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          setServerError(null);
+          onClose();
+        }
+      }}
+    >
+      <DialogContent className="sm:max-w-md bg-card border-border text-card-foreground shadow-2xl p-6">
+        <DialogHeader className="space-y-1.5">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-rose-500/10 rounded-xl border border-rose-500/20 text-rose-400">
+            <div className="p-2 bg-destructive/10 rounded-xl border border-destructive/20 text-destructive">
               <Trash2 className="w-5 h-5" />
             </div>
-            <CardTitle className="text-xl font-bold text-[#dee3e8]">
-              Delete Custom Category
-            </CardTitle>
+            <div>
+              <DialogTitle className="text-xl font-bold text-foreground">
+                Delete Custom Category
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                Are you sure you want to delete <span className="font-semibold text-destructive">&quot;{categoryToDelete.name}&quot;</span>?
+              </DialogDescription>
+            </div>
           </div>
-          <CardDescription className="text-xs text-[#94a3b8]">
-            Are you sure you want to delete <span className="font-semibold text-rose-400">&quot;{categoryToDelete.name}&quot;</span>?
-          </CardDescription>
-        </CardHeader>
+        </DialogHeader>
 
-        <CardContent className="space-y-4 pt-2">
+        <div className="space-y-4 pt-2">
           {serverError && (
-            <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-start gap-2">
+            <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-xs flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{serverError}</span>
             </div>
           )}
 
-          <div className="p-3 rounded-lg bg-[#0f1418] border border-[#303539] space-y-2 text-xs">
-            <div className="flex items-center gap-2 text-amber-400 font-medium">
+          <div className="p-3.5 rounded-xl bg-background border border-border space-y-2 text-xs">
+            <div className="flex items-center gap-2 text-warning font-medium">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>Transaction Reassignment Policy (BR-013)</span>
             </div>
-            <p className="text-[#94a3b8] leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed">
               If this category has active transactions, they will automatically be reassigned to the target category selected below before deletion.
             </p>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-[#aeb9d0] flex items-center gap-1.5">
-              <ArrowRightLeft className="w-3.5 h-3.5 text-[#38bdf8]" />
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <ArrowRightLeft className="w-3.5 h-3.5 text-primary" />
               Reassign Transactions To
             </label>
             <select
               value={targetCategoryId}
               onChange={(e) => setTargetCategoryId(e.target.value)}
-              className="w-full bg-[#0f1418] border border-[#303539] rounded-lg px-3 py-2 text-xs text-[#dee3e8] focus:border-[#38bdf8] outline-none"
+              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-xs text-foreground focus:border-primary outline-none"
             >
               {compatibleCategories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -146,15 +148,15 @@ export function DeleteCategoryModal({
               ))}
             </select>
           </div>
-        </CardContent>
+        </div>
 
-        <CardFooter className="flex justify-end gap-3 pt-2">
+        <DialogFooter className="gap-2 sm:gap-3 pt-4 border-t border-border">
           <Button
             type="button"
             variant="outline"
             onClick={onClose}
             disabled={isSubmitting}
-            className="border-[#303539] bg-[#0f1418] text-[#dee3e8] hover:bg-[#22272b]"
+            className="border-border bg-background text-foreground hover:bg-muted font-medium"
           >
             Cancel
           </Button>
@@ -162,7 +164,7 @@ export function DeleteCategoryModal({
             type="button"
             onClick={handleDelete}
             disabled={isSubmitting}
-            className="bg-rose-600 text-white hover:bg-rose-700 font-semibold"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold"
           >
             {isSubmitting ? (
               <>
@@ -173,8 +175,8 @@ export function DeleteCategoryModal({
               "Confirm & Delete"
             )}
           </Button>
-        </CardFooter>
-      </Card>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

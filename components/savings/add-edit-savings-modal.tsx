@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PiggyBank, Loader2 } from "lucide-react";
+import { useUserPreferences } from "@/lib/context/user-preferences-context";
 
 export interface SavingsGoal {
   id: string;
@@ -39,6 +41,7 @@ export function AddEditSavingsGoalModal({
   goal,
   onSuccess,
 }: AddEditSavingsGoalModalProps) {
+  const { currencySymbol } = useUserPreferences();
   const [name, setName] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
   const [accumulatedBalance, setAccumulatedBalance] = useState("");
@@ -127,7 +130,12 @@ export function AddEditSavingsGoalModal({
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        data = { error: `Server returned HTTP status ${res.status}` };
+      }
 
       if (!res.ok) {
         throw new Error(data.error || "Failed to save savings goal");
@@ -144,99 +152,129 @@ export function AddEditSavingsGoalModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[460px] bg-[#161a1d] border-[#303539] text-[#dee3e8]">
-        <DialogHeader>
-          <DialogTitle className="text-[#dee3e8] text-xl font-semibold">
-            {goal ? "Edit Savings Goal" : "Create Savings Goal"}
-          </DialogTitle>
-          <DialogDescription className="text-[#94a3b8]">
-            {goal
-              ? "Update your savings target amount or completion date."
-              : "Define a financial target to track your savings progress over time."}
-          </DialogDescription>
+      <DialogContent className="sm:max-w-[460px] bg-card border-border text-card-foreground shadow-2xl p-6">
+        <DialogHeader className="space-y-1.5">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-primary/10 border border-primary/20 rounded-xl text-primary">
+              <PiggyBank className="w-5 h-5" />
+            </div>
+            <div>
+              <DialogTitle className="text-foreground text-xl font-bold">
+                {goal ? "Edit Savings Goal" : "Create Savings Goal"}
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground text-xs mt-0.5">
+                {goal
+                  ? "Update your savings target amount or completion date."
+                  : "Define a financial target to track your savings progress over time."}
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-1">
           {error && (
-            <div className="p-3 text-xs rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 font-medium">
+            <div className="p-3 text-xs rounded-xl bg-destructive/10 border border-destructive/30 text-destructive font-medium">
               {error}
             </div>
           )}
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#94a3b8] uppercase tracking-wider">
+            <label htmlFor="goal-name" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Goal Title
             </label>
             <Input
+              id="goal-name"
               placeholder="e.g. Emergency Fund, New Laptop, Vacation"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="bg-[#22272b] border-[#303539] text-[#dee3e8] placeholder-[#64748b] focus:border-[#38bdf8]"
+              className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary min-h-[40px]"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#94a3b8] uppercase tracking-wider">
-                Target Amount ($)
+              <label htmlFor="target-amount" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Target Amount ({currencySymbol})
               </label>
-              <Input
-                type="number"
-                step="0.01"
-                min="0.01"
-                placeholder="1000.00"
-                value={targetAmount}
-                onChange={(e) => setTargetAmount(e.target.value)}
-                required
-                className="bg-[#22272b] border-[#303539] text-[#dee3e8] placeholder-[#64748b] font-mono focus:border-[#38bdf8]"
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-mono">
+                  {currencySymbol}
+                </span>
+                <Input
+                  id="target-amount"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  placeholder="1000.00"
+                  value={targetAmount}
+                  onChange={(e) => setTargetAmount(e.target.value)}
+                  required
+                  className="bg-background border-border text-foreground placeholder:text-muted-foreground font-mono focus-visible:ring-primary pl-8 min-h-[40px]"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#94a3b8] uppercase tracking-wider">
-                Current Saved ($)
+              <label htmlFor="accumulated-balance" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Current Saved ({currencySymbol})
               </label>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                value={accumulatedBalance}
-                onChange={(e) => setAccumulatedBalance(e.target.value)}
-                className="bg-[#22272b] border-[#303539] text-[#dee3e8] placeholder-[#64748b] font-mono focus:border-[#38bdf8]"
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-mono">
+                  {currencySymbol}
+                </span>
+                <Input
+                  id="accumulated-balance"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  value={accumulatedBalance}
+                  onChange={(e) => setAccumulatedBalance(e.target.value)}
+                  className="bg-background border-border text-foreground placeholder:text-muted-foreground font-mono focus-visible:ring-primary pl-8 min-h-[40px]"
+                />
+              </div>
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#94a3b8] uppercase tracking-wider">
+            <label htmlFor="target-date" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Target Completion Date
             </label>
             <Input
+              id="target-date"
               type="date"
               value={targetDate}
               onChange={(e) => setTargetDate(e.target.value)}
               required
-              className="bg-[#22272b] border-[#303539] text-[#dee3e8] focus:border-[#38bdf8]"
+              className="bg-background border-border text-foreground focus-visible:ring-primary min-h-[40px]"
             />
           </div>
 
-          <DialogFooter className="pt-4 border-t border-[#303539] gap-2">
+          <DialogFooter className="pt-4 border-t border-border gap-2 sm:gap-3">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="border-[#303539] bg-[#1b2024] hover:bg-[#22272b] text-[#94a3b8]"
+              className="border-border bg-background hover:bg-muted text-muted-foreground hover:text-foreground font-medium"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="bg-[#38bdf8] hover:bg-[#0284c7] text-[#0f172a] font-semibold"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
             >
-              {loading ? "Saving..." : goal ? "Update Goal" : "Create Goal"}
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : goal ? (
+                "Update Goal"
+              ) : (
+                "Create Goal"
+              )}
             </Button>
           </DialogFooter>
         </form>
