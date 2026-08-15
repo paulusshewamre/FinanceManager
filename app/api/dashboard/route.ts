@@ -21,15 +21,8 @@ export async function GET(req: Request) {
       try {
         attempts++;
 
-        // Consolidate queries into 6 parallel requests for fast execution & zero pool exhaustion
-        const [
-          allTimeGrouped,
-          monthlyGrouped,
-          recentTransactions,
-          activeBudgets,
-          categorySpendingAgg,
-          savingsGoals,
-        ] = await Promise.all([
+        // Split queries into 2 lightweight batches (3 + 3) to prevent connection pool exhaustion on Neon
+        const [allTimeGrouped, monthlyGrouped, recentTransactions] = await Promise.all([
           // 1. All-time Sums grouped by INCOME / EXPENSE
           prisma.transaction.groupBy({
             by: ["type"],
@@ -62,7 +55,9 @@ export async function GET(req: Request) {
               },
             },
           }),
+        ]);
 
+        const [activeBudgets, categorySpendingAgg, savingsGoals] = await Promise.all([
           // 4. Active Budgets for Current Month
           prisma.budget.findMany({
             where: { userId, year: currentYear, month: currentMonth },

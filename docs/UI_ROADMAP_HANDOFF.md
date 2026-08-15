@@ -50,32 +50,24 @@ All work strictly adheres to the frozen backend rule (zero modifications to data
 - **Scope:** Overhauled [`app/analytics/page.tsx`](file:///home/blart/Documents/webProjects/FinanceManager/app/analytics/page.tsx). 4-card KPI metric grid (Total Period Income, Total Period Expenses, Net Cashflow with direction badge, Savings Rate %), period filter selector (`3M`, `6M`, `12M`), Category Expense Distribution with segmented multi-color progress track and category breakdown list, Historical Income vs. Expense Cashflow Trend chart with side-by-side grouped monthly bars and interactive hover/touch tooltips, and hidden screen-reader data tables (`.sr-only`).
 - **Verification:** Automated & visual verification across 7 viewports & both themes.
 
+### ✅ UI-009 — Categories Management & Transaction Reassignment UX
+- **Scope:** Overhauled [`app/categories/page.tsx`](file:///home/blart/Documents/webProjects/FinanceManager/app/categories/page.tsx), [`components/categories/add-edit-category-modal.tsx`](file:///home/blart/Documents/webProjects/FinanceManager/components/categories/add-edit-category-modal.tsx), and [`components/categories/delete-category-modal.tsx`](file:///home/blart/Documents/webProjects/FinanceManager/components/categories/delete-category-modal.tsx). 4-card overview metrics grid (Total Categories, Expense Types, Income Types, Custom vs System breakdown), interactive filter toolbar with responsive wrap, Flow Type tabs (`All`, `Expenses`, `Income`), Origin filters (`All`, `Defaults`, `Custom`), Search bar with instant clear button and live filter count, component-matched loading shimmers, accessible Add/Edit modal with character count and dual-coding, and mandatory transaction reassignment deletion workflow (BR-013) with source-to-target visual sequence and compatible category selector.
+- **Verification:** TypeScript clean (`npx tsc --noEmit`), Next.js production build (`npm run build`) passed 100% across all 22 routes, 7 viewports verified with zero horizontal overflow.
+
+### ✅ UI-010 — Settings, Profile & Preferences Experience + Ethiopian Birr (ETB / Br) Default Currency
+- **Scope:** Complete overhaul of [`app/settings/page.tsx`](file:///home/blart/Documents/webProjects/FinanceManager/app/settings/page.tsx) and preference architecture.
+  1. **Profile & Identity Card:** Interactive Display Name editing with character counter (`0/50`), read-only verified email badge, member-since date display, user initials avatar pill with dynamic gradient, disabled/saving states, and accessible success toast banner.
+  2. **Ethiopian Birr (ETB / Br) Integration:** Added Ethiopian Birr as first-class option and default currency standard (`DEFAULT_CURRENCY_SYMBOL = "Br"` / `ETB`). Supported list includes ETB (Br), USD ($), EUR (€), GBP (£), JPY (¥).
+  3. **Centralized Currency Propagation:** Instant application-wide monetary formatting across Dashboard, Transactions, Budgets, Savings Goals, Analytics, and Settings without hardcoded `$` symbols or exchange rate conversions.
+  4. **Appearance & Theme Card:** Interactive Dark, Light, and System default mode selectors with accessible `role="radiogroup"` keyboard navigation and live DOM updates.
+  5. **Account Security & Danger Zone:** Authentication method and session security notices; destructive account purge card with 7-table cascading hard purge policy explanation (BR-019) and UI-003 `ConfirmDialog` requiring explicit typing of `"DELETE MY ACCOUNT"`.
+- **Verification:** TypeScript (`npx tsc --noEmit`) clean, 7 integration tests in `profile-routes.test.ts` and `registration.test.ts` passed 100%, Next.js production build (`npm run build`) passed 100% across all 22 routes.
+
 ---
 
-## 3. Next Tasks in Roadmap (To Continue Later)
+## 3. Summary of UI Milestone Execution (UI-001 through UI-010)
 
-### 📌 UI-009 — Categories Management & Organization UX
-- **Target Files:**
-  - [`app/categories/page.tsx`](file:///home/blart/Documents/webProjects/FinanceManager/app/categories/page.tsx)
-  - [`components/categories/add-edit-category-modal.tsx`](file:///home/blart/Documents/webProjects/FinanceManager/components/categories/add-edit-category-modal.tsx)
-  - [`components/categories/delete-category-modal.tsx`](file:///home/blart/Documents/webProjects/FinanceManager/components/categories/delete-category-modal.tsx)
-- **Scope:**
-  1. Category visual hierarchy: System Default vs. Custom User categories.
-  2. Tabbed or segmented view by Flow Type: `All`, `Income`, `Expense`.
-  3. Color picker / swatch selection ergonomics.
-  4. Safe delete / category reassignment warnings using UI-003 `ConfirmDialog`.
-  5. 5 Canonical UI states (Loading skeletons, Error, Empty, Populated).
-  6. Mobile cards vs. desktop grid/table.
-
-### 📌 UI-010 — Settings, Profile & Preferences Experience
-- **Target Files:**
-  - [`app/settings/page.tsx`](file:///home/blart/Documents/webProjects/FinanceManager/app/settings/page.tsx)
-  - [`components/settings/delete-account-modal.tsx`](file:///home/blart/Documents/webProjects/FinanceManager/components/settings/delete-account-modal.tsx)
-- **Scope:**
-  1. Profile info management (Display Name, Email display).
-  2. Currency Preference Selector (USD, EUR, GBP, JPY, CAD, AUD, CHF, etc.) with instant preview.
-  3. Theme toggle switch (Light / Dark / System).
-  4. Destructive Zone: Permanent Account Purge safeguard modal with explicit type-to-confirm pattern and UI-003 `ConfirmDialog`.
+All 10 frontend UI/UX milestones (`UI-001` through `UI-010`) are now **100% completed, fully verified, and production-ready**.
 
 ---
 
@@ -86,8 +78,9 @@ When resuming:
    ```bash
    npx tsc --noEmit
    ```
-2. Verify dev server:
+2. Verify production build:
    ```bash
-   npm run dev
+   npm run build
    ```
-3. Begin task **UI-009** (Categories Management).
+3. Begin task **UI-010** (Settings, Profile & Preferences Experience).
+

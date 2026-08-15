@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/db/prisma";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { DEFAULT_CURRENCY_SYMBOL } from "@/lib/validations/profile";
 
 /**
  * Resolve environment-aware baseURL prioritizing HTTPS production origins over localhost.
@@ -59,7 +60,7 @@ export const auth = betterAuth({
             data: {
               userId: user.id,
               displayName: user.name || user.email.split("@")[0],
-              preferredCurrencySymbol: "$",
+              preferredCurrencySymbol: DEFAULT_CURRENCY_SYMBOL,
               themePreference: "dark",
             },
           });

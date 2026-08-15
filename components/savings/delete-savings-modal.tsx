@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useUserPreferences } from "@/lib/context/user-preferences-context";
+import { safeFetch } from "@/lib/api/safe-fetch";
 import { SavingsGoal } from "./add-edit-savings-modal";
 
 interface DeleteSavingsGoalModalProps {
@@ -29,7 +30,7 @@ export function DeleteSavingsGoalModal({
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/savings/${goal.id}`, {
+      const res = await safeFetch(`/api/savings/${goal.id}`, {
         method: "DELETE",
       });
 

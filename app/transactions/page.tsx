@@ -39,6 +39,7 @@ import {
 } from "@/components/transactions/add-edit-transaction-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useUserPreferences } from "@/lib/context/user-preferences-context";
+import { safeFetch } from "@/lib/api/safe-fetch";
 
 export interface TransactionItem {
   id: string;
@@ -117,7 +118,7 @@ export default function TransactionsPage() {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await fetch("/api/categories");
+      const res = await safeFetch("/api/categories");
       if (res.ok) {
         const data = await res.json();
         setCategories(data);
@@ -142,7 +143,7 @@ export default function TransactionsPage() {
         if (endDate) params.set("endDate", endDate);
         if (searchQuery.trim()) params.set("search", searchQuery.trim());
 
-        const res = await fetch(`/api/transactions?${params.toString()}`);
+        const res = await safeFetch(`/api/transactions?${params.toString()}`);
         if (!res.ok) {
           throw new Error("Failed to fetch transactions");
         }
@@ -179,7 +180,7 @@ export default function TransactionsPage() {
     setDeletingId(transactionToDelete.id);
     setDeleteError(null);
     try {
-      const res = await fetch(`/api/transactions/${transactionToDelete.id}`, {
+      const res = await safeFetch(`/api/transactions/${transactionToDelete.id}`, {
         method: "DELETE",
       });
       if (!res.ok) {

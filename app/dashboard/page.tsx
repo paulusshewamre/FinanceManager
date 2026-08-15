@@ -27,6 +27,7 @@ import {
 import { useSession } from "@/lib/auth/auth-client";
 import { useUserPreferences } from "@/lib/context/user-preferences-context";
 import { AddEditTransactionModal } from "@/components/transactions/add-edit-transaction-modal";
+import { safeFetch } from "@/lib/api/safe-fetch";
 
 interface DashboardData {
   summary: {
@@ -92,7 +93,7 @@ export default function DashboardPage() {
       setLoading(true);
       setError(null);
 
-      const res = await fetch("/api/dashboard");
+      const res = await safeFetch("/api/dashboard");
       if (!res.ok) {
         throw new Error("Failed to load dashboard financial overview");
       }
@@ -124,10 +125,10 @@ export default function DashboardPage() {
         {/* ========================================================================= */}
         {/* Header & Quick Action Banner */}
         {/* ========================================================================= */}
-        <section aria-labelledby="dashboard-header-title">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-card rounded-2xl border border-border shadow-xl">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
+        <section aria-labelledby="dashboard-header-title" suppressHydrationWarning>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-card rounded-2xl border border-border shadow-xl" suppressHydrationWarning>
+            <div className="space-y-1" suppressHydrationWarning>
+              <div className="flex items-center gap-2" suppressHydrationWarning>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
                   Financial Overview
                 </span>
@@ -144,7 +145,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Action CTAs */}
-            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0" suppressHydrationWarning>
               <Button
                 onClick={() => setTxModalOpen(true)}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold flex items-center gap-1.5 shadow-lg shadow-primary/10 text-xs min-h-[44px] px-4"
@@ -179,43 +180,43 @@ export default function DashboardPage() {
         {/* Loading Skeleton State */}
         {/* ========================================================================= */}
         {loading && (
-          <div className="space-y-8 animate-pulse" aria-busy="true" aria-label="Loading financial dashboard metrics">
+          <div className="space-y-8 animate-pulse" aria-busy="true" aria-label="Loading financial dashboard metrics" suppressHydrationWarning>
             {/* Top 4 Summary Cards Skeletons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6" suppressHydrationWarning>
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-36 rounded-2xl bg-card border border-border p-6 space-y-3">
-                  <div className="flex justify-between items-center">
-                    <div className="h-3 w-28 bg-muted rounded-md" />
-                    <div className="h-8 w-8 bg-muted rounded-xl" />
+                <div key={i} className="h-36 rounded-2xl bg-card border border-border p-6 space-y-3" suppressHydrationWarning>
+                  <div className="flex justify-between items-center" suppressHydrationWarning>
+                    <div className="h-3 w-28 bg-muted rounded-md" suppressHydrationWarning />
+                    <div className="h-8 w-8 bg-muted rounded-xl" suppressHydrationWarning />
                   </div>
-                  <div className="h-8 w-36 bg-muted rounded-md" />
-                  <div className="h-3 w-24 bg-muted rounded-md" />
+                  <div className="h-8 w-36 bg-muted rounded-md" suppressHydrationWarning />
+                  <div className="h-3 w-24 bg-muted rounded-md" suppressHydrationWarning />
                 </div>
               ))}
             </div>
 
             {/* Split Content Skeletons */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="md:col-span-2 h-96 rounded-2xl bg-card border border-border p-6 space-y-4">
-                <div className="flex justify-between items-center pb-4 border-b border-border">
-                  <div className="h-5 w-48 bg-muted rounded-md" />
-                  <div className="h-4 w-16 bg-muted rounded-md" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6" suppressHydrationWarning>
+              <div className="md:col-span-2 h-96 rounded-2xl bg-card border border-border p-6 space-y-4" suppressHydrationWarning>
+                <div className="flex justify-between items-center pb-4 border-b border-border" suppressHydrationWarning>
+                  <div className="h-5 w-48 bg-muted rounded-md" suppressHydrationWarning />
+                  <div className="h-4 w-16 bg-muted rounded-md" suppressHydrationWarning />
                 </div>
-                <div className="space-y-3 pt-2">
+                <div className="space-y-3 pt-2" suppressHydrationWarning>
                   {[1, 2, 3, 4, 5].map((j) => (
-                    <div key={j} className="h-14 bg-muted/60 rounded-xl" />
+                    <div key={j} className="h-14 bg-muted/60 rounded-xl" suppressHydrationWarning />
                   ))}
                 </div>
               </div>
 
-              <div className="h-96 rounded-2xl bg-card border border-border p-6 space-y-4">
-                <div className="flex justify-between items-center pb-4 border-b border-border">
-                  <div className="h-5 w-40 bg-muted rounded-md" />
-                  <div className="h-4 w-16 bg-muted rounded-md" />
+              <div className="h-96 rounded-2xl bg-card border border-border p-6 space-y-4" suppressHydrationWarning>
+                <div className="flex justify-between items-center pb-4 border-b border-border" suppressHydrationWarning>
+                  <div className="h-5 w-40 bg-muted rounded-md" suppressHydrationWarning />
+                  <div className="h-4 w-16 bg-muted rounded-md" suppressHydrationWarning />
                 </div>
-                <div className="space-y-3 pt-2">
+                <div className="space-y-3 pt-2" suppressHydrationWarning>
                   {[1, 2, 3].map((k) => (
-                    <div key={k} className="h-20 bg-muted/60 rounded-xl" />
+                    <div key={k} className="h-20 bg-muted/60 rounded-xl" suppressHydrationWarning />
                   ))}
                 </div>
               </div>

@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useSession } from "@/lib/auth/auth-client";
+import { safeFetch } from "@/lib/api/safe-fetch";
+import { DEFAULT_CURRENCY_SYMBOL } from "@/lib/validations/profile";
 
 interface UserPreferencesContextType {
   currencySymbol: string;
@@ -18,11 +20,11 @@ interface UserPreferencesContextType {
 }
 
 const UserPreferencesContext = createContext<UserPreferencesContextType>({
-  currencySymbol: "$",
+  currencySymbol: DEFAULT_CURRENCY_SYMBOL,
   theme: "dark",
   displayName: "",
   isLoading: true,
-  formatCurrency: (amount) => `$${Number(amount || 0).toFixed(2)}`,
+  formatCurrency: (amount) => `${DEFAULT_CURRENCY_SYMBOL}${Number(amount || 0).toFixed(2)}`,
   updatePreferences: async () => false,
   refreshPreferences: async () => {},
 });
@@ -30,7 +32,7 @@ const UserPreferencesContext = createContext<UserPreferencesContextType>({
 export function UserPreferencesProvider({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
 
-  const [currencySymbol, setCurrencySymbol] = useState<string>("$");
+  const [currencySymbol, setCurrencySymbol] = useState<string>(DEFAULT_CURRENCY_SYMBOL);
   const [theme, setTheme] = useState<"dark" | "light" | "system">("dark");
   const [displayName, setDisplayName] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -55,11 +57,11 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
 
   const fetchProfilePreferences = useCallback(async () => {
     try {
-      const res = await fetch("/api/user/profile");
+      const res = await safeFetch("/api/user/profile");
       if (res.ok) {
         const data = await res.json();
         if (data.profile) {
-          const symbol = data.profile.preferredCurrencySymbol || "$";
+          const symbol = data.profile.preferredCurrencySymbol || DEFAULT_CURRENCY_SYMBOL;
           const themePref = (data.profile.themePreference as "dark" | "light" | "system") || "dark";
           const name = data.profile.displayName || data.user?.name || "";
 
@@ -130,7 +132,7 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
     }
 
     try {
-      const res = await fetch("/api/user/profile", {
+      const res = await safeFetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

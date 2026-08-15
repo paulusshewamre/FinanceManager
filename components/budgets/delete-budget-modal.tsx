@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useUserPreferences } from "@/lib/context/user-preferences-context";
+import { safeFetch } from "@/lib/api/safe-fetch";
 import type { BudgetItem } from "./add-edit-budget-modal";
 
 interface DeleteBudgetModalProps {
@@ -29,7 +30,7 @@ export function DeleteBudgetModal({
     setServerError(null);
 
     try {
-      const res = await fetch(`/api/budgets/${budgetToDelete.id}`, {
+      const res = await safeFetch(`/api/budgets/${budgetToDelete.id}`, {
         method: "DELETE",
       });
 

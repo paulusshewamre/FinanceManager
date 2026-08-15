@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ShieldAlert } from "lucide-react";
+import { safeFetch } from "@/lib/api/safe-fetch";
 
 interface DeleteAccountModalProps {
   isOpen: boolean;
@@ -21,7 +22,7 @@ export function DeleteAccountModal({
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/user/account", {
+      const res = await safeFetch("/api/user/account", {
         method: "DELETE",
       });
 

@@ -60,7 +60,7 @@ describe("User Registration Integration & DB Behavior (Functionality 1)", () => 
     });
     assert.ok(profileInDb, "Profile record must exist in DB");
     assert.strictEqual(profileInDb?.displayName, "Test Registration User");
-    assert.strictEqual(profileInDb?.preferredCurrencySymbol, "$");
+    assert.strictEqual(profileInDb?.preferredCurrencySymbol, "Br");
     assert.strictEqual(profileInDb?.themePreference, "dark");
 
     // Verify Session record in DB

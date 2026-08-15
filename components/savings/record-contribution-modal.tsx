@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { PiggyBank, Sparkles, Loader2, Plus } from "lucide-react";
 import { SavingsGoal } from "./add-edit-savings-modal";
 import { useUserPreferences } from "@/lib/context/user-preferences-context";
+import { safeFetch } from "@/lib/api/safe-fetch";
 
 interface RecordContributionModalProps {
   open: boolean;
@@ -71,7 +72,7 @@ export function RecordContributionModal({
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/savings/${goal.id}/contribute`, {
+      const res = await safeFetch(`/api/savings/${goal.id}/contribute`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PiggyBank, Loader2 } from "lucide-react";
 import { useUserPreferences } from "@/lib/context/user-preferences-context";
+import { safeFetch } from "@/lib/api/safe-fetch";
 
 export interface SavingsGoal {
   id: string;
@@ -122,7 +123,7 @@ export function AddEditSavingsGoalModal({
         payload.accumulatedBalance = parsedAccumulated;
       }
 
-      const res = await fetch(url, {
+      const res = await safeFetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",

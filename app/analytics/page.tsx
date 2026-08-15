@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { safeFetch } from "@/lib/api/safe-fetch";
 import {
   LineChart,
   PieChart as PieIcon,
@@ -65,7 +66,7 @@ export default function AnalyticsPage() {
       setLoading(true);
       setError(null);
 
-      const res = await fetch(`/api/analytics?months=${months}`);
+      const res = await safeFetch(`/api/analytics?months=${months}`);
       if (!res.ok) {
         throw new Error("Failed to load financial analytics data");
       }

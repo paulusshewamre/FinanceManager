@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
 import { getAuthenticatedUserId, UnauthorizedError } from "@/lib/auth/session";
-import { updateProfileSchema } from "@/lib/validations/profile";
+import { updateProfileSchema, DEFAULT_CURRENCY_SYMBOL } from "@/lib/validations/profile";
 
 export async function GET(req: Request) {
   try {
@@ -29,7 +29,7 @@ export async function GET(req: Request) {
         data: {
           userId,
           displayName: user.name || "User",
-          preferredCurrencySymbol: "$",
+          preferredCurrencySymbol: DEFAULT_CURRENCY_SYMBOL,
           themePreference: "dark",
         },
       });
@@ -83,7 +83,7 @@ export async function PUT(req: Request) {
         create: {
           userId,
           displayName: displayName || "User",
-          preferredCurrencySymbol: preferredCurrencySymbol || "$",
+          preferredCurrencySymbol: preferredCurrencySymbol || DEFAULT_CURRENCY_SYMBOL,
           themePreference: themePreference || "dark",
         },
         update: {

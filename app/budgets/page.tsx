@@ -26,6 +26,7 @@ import {
 import { AddEditBudgetModal, type BudgetItem, type CategoryItem } from "@/components/budgets/add-edit-budget-modal";
 import { DeleteBudgetModal } from "@/components/budgets/delete-budget-modal";
 import { useUserPreferences } from "@/lib/context/user-preferences-context";
+import { safeFetch } from "@/lib/api/safe-fetch";
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
@@ -69,7 +70,7 @@ export default function BudgetsPage() {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await fetch("/api/categories");
+      const res = await safeFetch("/api/categories");
       if (res.ok) {
         const data = await res.json();
         setCategories(data);
@@ -83,7 +84,7 @@ export default function BudgetsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/budgets?month=${selectedMonth}&year=${selectedYear}`);
+      const res = await safeFetch(`/api/budgets?month=${selectedMonth}&year=${selectedYear}`);
       if (!res.ok) {
         throw new Error("Failed to fetch monthly category budgets");
       }

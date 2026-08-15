@@ -62,7 +62,7 @@ describe("Profile Settings & Account Purge API Routes (TSK-070)", () => {
 
     const body = await res.json();
     assert.strictEqual(body.user.email, testUserEmail);
-    assert.strictEqual(body.profile.preferredCurrencySymbol, "$");
+    assert.strictEqual(body.profile.preferredCurrencySymbol, "Br");
     assert.strictEqual(body.profile.themePreference, "dark");
   });
 

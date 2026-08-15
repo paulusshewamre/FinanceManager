@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Tag, AlertCircle } from "lucide-react";
+import { Loader2, Tag, AlertCircle, TrendingDown, TrendingUp, Sparkles, CheckCircle2 } from "lucide-react";
 import { categorySchema, type CategoryInput, CategoryTypeEnum } from "@/lib/validations/category";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,17 +15,20 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { safeFetch } from "@/lib/api/safe-fetch";
+
+export interface CategoryModalItem {
+  id: string;
+  name: string;
+  type: "INCOME" | "EXPENSE";
+  isSystemDefault: boolean;
+}
 
 interface AddEditCategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  categoryToEdit?: {
-    id: string;
-    name: string;
-    type: "INCOME" | "EXPENSE";
-    isSystemDefault: boolean;
-  } | null;
+  categoryToEdit?: CategoryModalItem | null;
 }
 
 export function AddEditCategoryModal({
@@ -54,6 +57,7 @@ export function AddEditCategoryModal({
   });
 
   const selectedType = watch("type");
+  const categoryName = watch("name") || "";
 
   useEffect(() => {
     if (categoryToEdit) {
@@ -78,7 +82,7 @@ export function AddEditCategoryModal({
         : "/api/categories";
       const method = isEditing ? "PUT" : "POST";
 
-      const res = await fetch(url, {
+      const res = await safeFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -94,7 +98,7 @@ export function AddEditCategoryModal({
       onSuccess();
       onClose();
     } catch (err: any) {
-      setServerError(err.message || "An unexpected error occurred");
+      setServerError(err.message || "An unexpected error occurred. Please try again.");
     }
   };
 
@@ -102,85 +106,148 @@ export function AddEditCategoryModal({
     <Dialog
       open={isOpen}
       onOpenChange={(open) => {
-        if (!open) {
+        if (!open && !isSubmitting) {
           setServerError(null);
           onClose();
         }
       }}
     >
-      <DialogContent className="sm:max-w-md bg-card border-border text-card-foreground shadow-2xl p-6">
-        <DialogHeader className="space-y-1.5">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-primary/10 rounded-xl border border-primary/20 text-primary">
-              <Tag className="w-5 h-5" />
+      <DialogContent
+        className="sm:max-w-md bg-card border-border text-card-foreground shadow-2xl p-6 rounded-2xl"
+        aria-describedby="category-dialog-description"
+      >
+        <DialogHeader className="space-y-2">
+          <div className="flex items-center gap-3">
+            <div
+              className={`p-2.5 rounded-xl border shrink-0 ${
+                selectedType === CategoryTypeEnum.EXPENSE
+                  ? "bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400"
+                  : "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+              }`}
+            >
+              {isEditing ? (
+                <Sparkles className="w-5 h-5" aria-hidden="true" />
+              ) : (
+                <Tag className="w-5 h-5" aria-hidden="true" />
+              )}
             </div>
             <div>
               <DialogTitle className="text-xl font-bold text-foreground">
                 {isEditing ? "Edit Custom Category" : "Add Custom Category"}
               </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+              <div id="category-dialog-description" className="text-xs text-muted-foreground mt-0.5">
                 {isEditing
-                  ? "Update custom category name or flow type"
-                  : "Create a new custom category for organizing your ledger"}
-              </DialogDescription>
+                  ? `Update the name or flow classification for "${categoryToEdit?.name}".`
+                  : "Create a new custom category for organizing your income and expense transactions."}
+              </div>
             </div>
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-1">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
           {serverError && (
-            <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-xs flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>{serverError}</span>
+            <div
+              role="alert"
+              className="p-3.5 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-xs flex items-start gap-2.5 animate-in fade-in"
+            >
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
+              <span className="font-medium leading-relaxed">{serverError}</span>
             </div>
           )}
 
           {/* Category Type Switcher */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Category Type
+          <div className="space-y-2">
+            <label
+              id="category-type-label"
+              className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block"
+            >
+              Transaction Flow Type
             </label>
-            <div className="grid grid-cols-2 gap-2 p-1 bg-muted/60 rounded-lg border border-border">
+            <div
+              role="group"
+              aria-labelledby="category-type-label"
+              className="grid grid-cols-2 gap-2 p-1.5 bg-muted/50 rounded-xl border border-border"
+            >
               <button
                 type="button"
+                role="radio"
+                aria-checked={selectedType === CategoryTypeEnum.EXPENSE}
                 onClick={() => setValue("type", CategoryTypeEnum.EXPENSE)}
-                className={`py-2 text-xs font-semibold rounded-md transition-all ${
+                disabled={isSubmitting}
+                className={`py-2.5 px-3 min-h-[44px] text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-all ${
                   selectedType === CategoryTypeEnum.EXPENSE
-                    ? "bg-rose-500/20 text-rose-500 dark:text-rose-400 border border-rose-500/40 shadow-xs font-bold"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/40 shadow-xs font-bold ring-1 ring-rose-500/30"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
                 }`}
               >
-                Expense Category
+                <TrendingDown className="w-4 h-4" aria-hidden="true" />
+                <span>Expense Category</span>
               </button>
               <button
                 type="button"
+                role="radio"
+                aria-checked={selectedType === CategoryTypeEnum.INCOME}
                 onClick={() => setValue("type", CategoryTypeEnum.INCOME)}
-                className={`py-2 text-xs font-semibold rounded-md transition-all ${
+                disabled={isSubmitting}
+                className={`py-2.5 px-3 min-h-[44px] text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-all ${
                   selectedType === CategoryTypeEnum.INCOME
-                    ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 shadow-xs font-bold"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 shadow-xs font-bold ring-1 ring-emerald-500/30"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
                 }`}
               >
-                Income Category
+                <TrendingUp className="w-4 h-4" aria-hidden="true" />
+                <span>Income Category</span>
               </button>
             </div>
           </div>
 
           {/* Category Name Input */}
           <div className="space-y-1.5">
-            <label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Category Name
-            </label>
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="name"
+                className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+              >
+                Category Name <span className="text-destructive">*</span>
+              </label>
+              <span className="text-[11px] text-muted-foreground tabular-nums">
+                {categoryName.length}/50
+              </span>
+            </div>
             <Input
               id="name"
               type="text"
-              placeholder="e.g. Subscriptions, Gym, Consulting"
+              placeholder={
+                selectedType === CategoryTypeEnum.EXPENSE
+                  ? "e.g. Subscriptions, Groceries, Dining Out"
+                  : "e.g. Consulting, Freelance, Dividend"
+              }
               disabled={isSubmitting}
+              maxLength={50}
+              aria-required="true"
+              aria-invalid={!!errors.name || !!serverError}
+              aria-describedby={
+                errors.name ? "name-error" : "name-hint"
+              }
               {...register("name")}
-              className="bg-background border-border text-foreground focus-visible:ring-primary text-xs"
+              className="bg-background border-border text-foreground focus-visible:ring-primary text-sm min-h-[44px] rounded-xl"
             />
-            {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
+            {errors.name ? (
+              <p
+                id="name-error"
+                role="alert"
+                className="text-xs text-destructive flex items-center gap-1.5 mt-1"
+              >
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                <span>{errors.name.message}</span>
+              </p>
+            ) : (
+              <p
+                id="name-hint"
+                className="text-[11px] text-muted-foreground leading-normal"
+              >
+                Category names must be unique within {selectedType.toLowerCase()} classifications.
+              </p>
             )}
           </div>
 
@@ -190,24 +257,30 @@ export function AddEditCategoryModal({
               variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
-              className="border-border bg-background text-foreground hover:bg-muted font-medium"
+              className="border-border bg-background text-foreground hover:bg-muted font-medium min-h-[44px] rounded-xl"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
+              disabled={isSubmitting || !categoryName.trim()}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold min-h-[44px] rounded-xl shadow-xs"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
+                  <span>Saving...</span>
                 </>
               ) : isEditing ? (
-                "Save Changes"
+                <>
+                  <CheckCircle2 className="w-4 h-4 mr-2" aria-hidden="true" />
+                  <span>Save Changes</span>
+                </>
               ) : (
-                "Create Category"
+                <>
+                  <Tag className="w-4 h-4 mr-2" aria-hidden="true" />
+                  <span>Create Category</span>
+                </>
               )}
             </Button>
           </DialogFooter>

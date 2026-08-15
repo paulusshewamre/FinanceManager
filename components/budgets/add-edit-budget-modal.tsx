@@ -16,6 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useUserPreferences } from "@/lib/context/user-preferences-context";
+import { safeFetch } from "@/lib/api/safe-fetch";
 
 export interface BudgetItem {
   id: string;
@@ -118,7 +119,7 @@ export function AddEditBudgetModal({
         year: Number(data.year || budgetToEdit?.year || currentYear),
       };
 
-      const res = await fetch(url, {
+      const res = await safeFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

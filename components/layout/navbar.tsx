@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -16,6 +16,7 @@ import {
   X,
   User,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import { useSession } from "@/lib/auth/auth-client";
 import { useUserPreferences } from "@/lib/context/user-preferences-context";
@@ -104,7 +105,17 @@ export function Navbar() {
     return pathname === href || pathname.startsWith(href);
   };
 
-  // Check if current page is in the "More" drawer menu (Analytics, Categories, Settings)
+  // Derive 2-letter initials for user avatar badge
+  const userInitials = useMemo(() => {
+    const name = displayName || session?.user?.name || "User";
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  }, [displayName, session?.user?.name]);
+
+  // Check if current page is in the "More" drawer menu on mobile
   const isMoreActive =
     !MOBILE_PRIMARY_NAV.some((item) => isItemActive(item.href)) &&
     NAV_ITEMS.some((item) => isItemActive(item.href));
@@ -115,18 +126,18 @@ export function Navbar() {
       {/* Top Application Header (Desktop, Tablet, Mobile) */}
       {/* ========================================================================= */}
       <header
-        className="sticky top-0 z-40 w-full border-b border-border bg-card/90 backdrop-blur-md transition-colors"
+        className="sticky top-0 z-40 w-full border-b border-border/70 bg-card/90 backdrop-blur-md transition-colors"
         suppressHydrationWarning
       >
         <div
-          className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8"
+          className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8 gap-4"
           suppressHydrationWarning
         >
-          {/* Left: Brand Logo & Desktop/Tablet Navigation Links */}
-          <div className="flex items-center gap-4 lg:gap-8" suppressHydrationWarning>
+          {/* Left: Brand Logo */}
+          <div className="flex items-center gap-3 shrink-0" suppressHydrationWarning>
             <Link
               href="/dashboard"
-              className="flex items-center gap-2.5 group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary rounded-xl"
+              className="flex items-center gap-2.5 group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary rounded-xl py-1"
               aria-label="Personal Finance Manager Dashboard"
             >
               <div
@@ -135,64 +146,76 @@ export function Navbar() {
               >
                 <Wallet className="w-5 h-5" />
               </div>
-              <span className="font-bold text-lg text-foreground tracking-tight whitespace-nowrap">
+              <span className="font-bold text-base sm:text-lg text-foreground tracking-tight whitespace-nowrap">
                 Finance<span className="text-primary">Manager</span>
               </span>
             </Link>
-
-            {/* Desktop & Tablet Navigation (>= 768px) */}
-            <nav
-              aria-label="Main Navigation"
-              className="hidden md:flex items-center gap-1 lg:gap-1.5"
-              suppressHydrationWarning
-            >
-              {NAV_ITEMS.map((item) => {
-                const Icon = item.icon;
-                const active = isItemActive(item.href);
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    className={`flex items-center gap-1.5 lg:gap-2 px-2.5 py-1.5 lg:px-3 lg:py-2 rounded-lg text-xs lg:text-sm font-medium transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary ${
-                      active
-                        ? "bg-primary/10 text-primary font-semibold border border-primary/20 shadow-xs"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                    }`}
-                  >
-                    <Icon
-                      className={`w-4 h-4 shrink-0 ${
-                        active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                      }`}
-                    />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
           </div>
 
-          {/* Right: User Profile Information, Logout & Mobile Menu Trigger */}
-          <div className="flex items-center gap-2 sm:gap-4" suppressHydrationWarning>
+          {/* Center: Desktop Navigation Island (Segmented Capsule) */}
+          <nav
+            aria-label="Main Navigation"
+            className="hidden md:flex items-center gap-0.5 p-1 bg-muted/40 rounded-xl border border-border/50 shadow-xs"
+            suppressHydrationWarning
+          >
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const active = isItemActive(item.href);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 lg:px-3 lg:py-1.5 rounded-lg text-xs font-semibold transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary ${
+                    active
+                      ? "bg-background text-foreground shadow-xs border border-border/60 ring-1 ring-primary/20 font-bold"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                  }`}
+                >
+                  <Icon
+                    className={`w-3.5 h-3.5 shrink-0 ${
+                      active ? "text-primary stroke-[2.5]" : "text-muted-foreground"
+                    }`}
+                  />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Right: User Profile Capsule & Logout Action */}
+          <div className="flex items-center gap-2.5 shrink-0" suppressHydrationWarning>
             {session?.user && (
-              <div className="hidden sm:flex flex-col text-right" suppressHydrationWarning>
-                <span className="text-xs font-semibold text-foreground truncate max-w-[160px]">
-                  {displayName || session.user.name || "User"}
-                </span>
-                <span className="text-[11px] text-muted-foreground truncate max-w-[160px]">
-                  {session.user.email}
-                </span>
-              </div>
+              <Link
+                href="/settings"
+                aria-label="View user profile and account settings"
+                className="hidden sm:flex items-center gap-2.5 p-1.5 pr-3 rounded-xl border border-border/60 bg-muted/30 hover:bg-muted/60 hover:border-primary/30 transition-all focus-visible:ring-2 focus-visible:ring-primary group"
+                suppressHydrationWarning
+              >
+                <div
+                  className="w-7 h-7 rounded-lg bg-gradient-to-tr from-primary/30 to-primary/10 border border-primary/30 text-primary font-bold text-xs flex items-center justify-center select-none shadow-xs group-hover:scale-105 transition-transform"
+                  suppressHydrationWarning
+                >
+                  {userInitials}
+                </div>
+                <div className="flex flex-col text-left" suppressHydrationWarning>
+                  <span className="text-xs font-semibold text-foreground truncate max-w-[110px] leading-tight">
+                    {displayName || session.user.name || "User"}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground truncate max-w-[110px] leading-tight">
+                    Settings
+                  </span>
+                </div>
+              </Link>
             )}
 
-            <div className="h-6 w-px bg-border hidden sm:block" suppressHydrationWarning />
-
-            {/* Desktop Logout Button */}
+            {/* Desktop Logout Button (Clean Icon Button with Tooltip) */}
             <div className="hidden md:block">
               <LogoutButton
                 variant="outline"
-                className="border-border bg-card hover:bg-destructive/10 text-destructive border-destructive/20 text-xs py-1.5 px-3"
+                showText={false}
+                className="h-9 w-9 p-0 min-h-[36px] min-w-[36px] rounded-xl border-border/70 hover:border-destructive/30 hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
               />
             </div>
 
@@ -305,8 +328,8 @@ export function Navbar() {
             {/* User Profile Card */}
             {session?.user && (
               <div className="mt-3 p-3 bg-muted/40 rounded-xl border border-border flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold text-sm">
-                  <User className="w-4 h-4" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary/30 to-primary/10 border border-primary/30 text-primary flex items-center justify-center font-bold text-xs">
+                  {userInitials}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-foreground truncate">

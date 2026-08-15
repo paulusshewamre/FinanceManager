@@ -26,6 +26,7 @@ import {
 import { RecordContributionModal } from "@/components/savings/record-contribution-modal";
 import { DeleteSavingsGoalModal } from "@/components/savings/delete-savings-modal";
 import { useUserPreferences } from "@/lib/context/user-preferences-context";
+import { safeFetch } from "@/lib/api/safe-fetch";
 
 interface SummaryData {
   totalTarget: number;
@@ -72,7 +73,7 @@ export default function SavingsPage() {
       setLoading(true);
       setError(null);
 
-      const res = await fetch("/api/savings");
+      const res = await safeFetch("/api/savings");
       if (!res.ok) {
         throw new Error("Failed to fetch savings goals");
       }

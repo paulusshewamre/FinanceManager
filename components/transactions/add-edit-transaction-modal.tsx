@@ -16,6 +16,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { useUserPreferences } from "@/lib/context/user-preferences-context";
+import { safeFetch } from "@/lib/api/safe-fetch";
 
 export interface CategoryItem {
   id: string;
@@ -52,7 +54,7 @@ export function AddEditTransactionModal({
 
   useEffect(() => {
     if (isOpen && (!propCategories || propCategories.length === 0)) {
-      fetch("/api/categories")
+      safeFetch("/api/categories")
         .then((res) => res.json())
         .then((data) => {
           if (Array.isArray(data)) {
@@ -152,7 +154,7 @@ export function AddEditTransactionModal({
         transactionDate: new Date(data.transactionDate).toISOString(),
       };
 
-      const res = await fetch(url, {
+      const res = await safeFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
